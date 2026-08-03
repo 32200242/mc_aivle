@@ -1,0 +1,33 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://family-center.internal/contracts/avatar-event.schema.json",
+  "title": "Training turn completed event",
+  "type": "object",
+  "required": ["turn_id", "response", "emotion", "emotion_intensity", "nonverbal_cues", "supervisor_feedback", "tts_text"],
+  "properties": {
+    "turn_id": { "type": "string" },
+    "response": { "type": "string", "minLength": 1 },
+    "emotion": { "enum": ["neutral", "sad", "angry", "anxious", "hurt", "withdrawn"] },
+    "emotion_intensity": { "type": "number", "minimum": 0, "maximum": 1 },
+    "nonverbal_cues": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["id", "label", "category", "intensity"],
+        "properties": {
+          "id": { "type": "string", "pattern": "^[a-z]+\\.[a-z0-9_]+$" },
+          "label": { "type": "string" },
+          "category": { "type": "string" },
+          "intensity": { "type": "number", "minimum": 0, "maximum": 1 },
+          "delay_ms": { "type": "integer", "minimum": 0, "default": 0 },
+          "duration_ms": { "type": "integer", "minimum": 500, "default": 120000 },
+          "loop": { "type": "boolean", "default": true }
+        },
+        "additionalProperties": false
+      }
+    },
+    "supervisor_feedback": { "type": "object" },
+    "tts_text": { "type": "string" }
+  },
+  "additionalProperties": false
+}

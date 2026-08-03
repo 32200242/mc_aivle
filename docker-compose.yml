@@ -1,0 +1,23 @@
+services:
+  backend:
+    build: ./backend
+    env_file: .env
+    ports:
+      - "8100:8100"
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://127.0.0.1:8100/health')"]
+      interval: 10s
+      timeout: 3s
+      retries: 5
+
+  frontend:
+    build:
+      context: ./frontend
+      args:
+        NEXT_PUBLIC_API_BASE_URL: ${NEXT_PUBLIC_API_BASE_URL:-http://127.0.0.1:8100/api/v1}
+        NEXT_PUBLIC_AVATAR_MODEL_URL: ${NEXT_PUBLIC_AVATAR_MODEL_URL:-/models/Female_Adult_01_facial_1024.glb}
+    ports:
+      - "3000:3000"
+    depends_on:
+      backend:
+        condition: service_healthy
