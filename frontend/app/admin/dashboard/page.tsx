@@ -91,16 +91,10 @@ export default function AdminDashboard() {
           </Panel>
         </div>
 
-        <div className="dashboard-detail-grid">
+        <div className="dashboard-detail-grid single">
           <Panel>
             <div className="panel-heading"><div><h2>월별 누적 상담 참여인원 추이</h2><small>{data.scope.label} · 조회기간의 일별 참여인원을 월별 연인원으로 집계</small></div><Tag tone={data.changes.sessions >= 0 ? "green" : "orange"}>{formatChange(data.changes.sessions)}</Tag></div>
             <SessionTrend data={data.trend} target={data.service_targets.scope_monthly_contact_target} />
-          </Panel>
-          <Panel>
-            <div className="panel-heading"><div><h2>내담자 주요 호소영역</h2><small>현재 상담사 배정 사례 기준</small></div><Tag tone="purple">총 {data.active_clients.toLocaleString()}명</Tag></div>
-            <div className="issue-bars">
-              {data.issues.map((issue) => <div key={issue.issue}><span>{issue.issue}</span><div><i style={{ width: `${data.active_clients ? issue.client_count / data.active_clients * 100 : 0}%` }}/></div><b>{issue.client_count.toLocaleString()}</b><small>집중검토 {issue.priority_review_count}</small></div>)}
-            </div>
           </Panel>
         </div>
 
