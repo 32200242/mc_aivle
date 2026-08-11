@@ -18,6 +18,68 @@
 - 17개 시·도 → 244개 기관 → 상담인력 1,724명 → 내담자군 → 760일 운영지표 연결 데이터
 - 지역·센터 클릭형 관리자 대시보드와 시간순 검증 기반 28일 상담수요 예측
 
+## 새로 클론한 뒤 반드시 준비할 것
+
+이 저장소는 소스 코드와 고정 데모 자산을 포함하지만, 비밀값·설치 결과·대용량 런타임 데이터·외부 AI 모델은 의도적으로 포함하지 않습니다. 따라서 새 PC에서 클론한 직후에는 아래 두 항목을 반드시 준비해야 전체 로컬 데모가 동작합니다.
+
+1. `.env.example`을 복사해 로컬 전용 `.env`를 만듭니다.
+2. Git에 포함되지 않은 상담 시연 DB `backend/data/counseling_demo_v3.sqlite3`을 생성합니다.
+
+### Git에 포함되지 않은 항목
+
+| 빠진 항목 | 빠진 이유 | 사용자가 해야 할 일 |
+|---|---|---|
+| `.env`, `.env.local` 등 실제 환경파일 | API 키와 비밀값 보호 | `.env.example`을 `.env`로 복사하고 필요한 값만 입력 |
+| `backend/data/counseling_demo_v3.sqlite3` 및 구버전 SQLite | 파일당 약 166MB로 일반 GitHub 제한 초과 | 아래 생성 스크립트를 한 번 실행하거나 별도 DB 경로를 `COUNSELING_DATA_PATH`에 지정 |
+| `backend/data/training_progress.json` | 사용자별 실행 상태인 런타임 파일 | 별도 준비 불필요. 교육 API 사용 시 자동 생성 |
+| `.venv`, `node_modules`, `.pnpm-store`, npm 캐시 | OS·PC별 설치 결과 | Python 및 프론트엔드 의존성을 각 PC에서 설치 |
+| Mi:dm, PaddleOCR-VL, LongCat 모델 가중치 | 용량·라이선스·GPU 실행환경이 저장소 밖에 있음 | 해당 Colab 노트북 또는 사내 추론 서버 준비 |
+| API 키, Hugging Face 토큰, ngrok 토큰 | 비밀정보 | Colab Secrets 또는 로컬 `.env`에만 저장하고 Git에 커밋하지 않음 |
+| 테스트 임시폴더, 빌드 결과, 검증 캡처·압축파일 | 재생성 가능한 산출물 | 필요할 때 테스트·빌드·검증 스크립트로 다시 생성 |
+
+대시보드용 합성 CSV, 데모 음성·영상, 인물 이미지, 지도 SVG, 프론트 정적 자산은 저장소에 포함되어 있습니다.
+
+### 최소 로컬 실행 준비
+
+프로젝트 루트에서 PowerShell로 다음을 최초 한 번 실행합니다. DB 생성은 결정론적이며 실제 내담자 데이터를 사용하거나 외부 LLM을 호출하지 않습니다.
+
+```powershell
+if (-not (Test-Path -LiteralPath ".env")) {
+    Copy-Item -LiteralPath ".env.example" -Destination ".env"
+}
+
+py -3 -m venv .venv
+& ".\.venv\Scripts\python.exe" -m pip install --upgrade pip
+& ".\.venv\Scripts\python.exe" -m pip install -r ".\backend\requirements.txt"
+& ".\.venv\Scripts\python.exe" ".\backend\scripts\build_counseling_dataset.py" --anchor-date 2026-08-10
+
+Set-Location -LiteralPath ".\frontend"
+npm.cmd install
+Set-Location -LiteralPath ".."
+```
+
+DB 생성 후 아래 명령이 `True`를 출력하면 상담사–내담자 기능을 실행할 준비가 된 것입니다.
+
+```powershell
+Test-Path -LiteralPath ".\backend\data\counseling_demo_v3.sqlite3"
+```
+
+화면과 고정 데모만 확인하려면 `.env`의 `AI_PROVIDER=mock`, `AVATAR_PROVIDER=static_2d`를 유지하면 됩니다. 이 최소 모드에는 GPU, Colab, 실제 LLM, 원격 OCR, LongCat 워커가 필요하지 않습니다.
+
+### 기능별로 추가해야 하는 것
+
+| 사용할 기능 | 추가 준비 | 관련 설정·문서 |
+|---|---|---|
+| 관리자 대시보드·수요예측 | 기본 설치만 필요. XGBoost는 선택 사항이며 미설치 시 내장 엔진 사용 | `backend/requirements-forecast.txt`, [`docs/DASHBOARD_DATA_MODEL.md`](./docs/DASHBOARD_DATA_MODEL.md) |
+| 실제 Mi:dm 응답 | GPU Colab 또는 OpenAI 호환 사내 서버, 서버 URL·모델명·API 키 | `AI_PROVIDER=internal_openai`, `INTERNAL_LLM_*`, [`docs/COLAB_MIDM_DEMO.md`](./docs/COLAB_MIDM_DEMO.md) |
+| 이미지/PDF OCR | 로컬 전처리 패키지와 PaddleOCR-VL 원격 서버 | `backend/requirements-ocr.txt`, `INTERNAL_OCR_*`, [`docs/OCR_REPORT_STT.md`](./docs/OCR_REPORT_STT.md) |
+| 음성 합성·음성 인식 | 호환 TTS/STT 서버의 URL과 선택적 API 키 | `INTERNAL_TTS_*`, `INTERNAL_STT_*` |
+| 정적 교육 영상·2D 아바타 | 추가 준비 없음. 필요한 MP4·이미지가 저장소에 포함됨 | `AVATAR_PROVIDER=static_2d` |
+| LongCat 생성 영상 | Mi:dm/OCR과 분리된 전용 GPU, LongCat 코드·가중치, 워커 URL·공유 키 | `AVATAR_PROVIDER=longcat_http`, `LONGCAT_AVATAR_*`, [`workers/longcat_avatar/README.md`](./workers/longcat_avatar/README.md) |
+| Docker 실행 | Docker Desktop, `.env`, 미리 생성한 상담 SQLite | 아래 `Docker 실행` 절 참고 |
+
+실제 AI 기능을 켤 때에도 비밀값은 README나 노트북 출력에 저장하지 말고 `.env` 또는 Colab Secrets에만 둡니다. 배포 전에는 최소한 `AUTH_SECRET`을 충분히 긴 무작위 값으로 교체해야 합니다.
+
 ## 연결형 관리자 데이터와 예측
 
 관리자 대시보드(`/admin/dashboard`)의 지도와 센터 목록을 누르면 같은 데이터에서 조회 범위가 바뀝니다. 상담수요 전망(`/admin/analytics`)은 28일짜리 rolling-origin 검증창 3개에서 Ridge·Boost·계절 기준선을 비교·앙상블하고, 결과를 상담 슬롯 처리용량에 연결해 Erlang-C 대기압력을 계산합니다.
@@ -32,7 +94,7 @@
 
 ## 상담사–내담자 연결 데이터
 
-`backend/data/counseling_demo_v3.sqlite3`은 상담사별 활성 내담자 수 합계 14,143명을 실제 배정 행으로 펼친 고정 시연 데이터입니다. 내담자마다 가족관계 문제징후 18문항, 가족스트레스 45문항, BFI-10 10문항, 관계 해체 고려 1문항의 원 응답과 코드로 계산한 점수, 회기 기록 4건을 연결합니다. 가족관계 문제징후는 18~90점 원점수와 확인 기준 54점을 사용하고, 가족스트레스는 경험빈도 0~45건과 부담 합계 0~225점을 분리합니다. 웹 요청 중에는 데이터를 생성하거나 LLM을 호출하지 않고 필요한 상담사의 한 페이지와 선택 사례만 조회합니다.
+`backend/data/counseling_demo_v3.sqlite3`은 상담사별 활성 내담자 수 합계 14,143명을 실제 배정 행으로 펼친 고정 시연 데이터입니다. 이 파일은 약 166MB라 Git에 포함되지 않으므로 새로 클론한 환경에서는 아래 명령으로 먼저 생성해야 합니다. 내담자마다 가족관계 문제징후 18문항, 가족스트레스 45문항, BFI-10 10문항, 관계 해체 고려 1문항의 원 응답과 코드로 계산한 점수, 회기 기록 4건을 연결합니다. 가족관계 문제징후는 18~90점 원점수와 확인 기준 54점을 사용하고, 가족스트레스는 경험빈도 0~45건과 부담 합계 0~225점을 분리합니다. 웹 요청 중에는 데이터를 생성하거나 LLM을 호출하지 않고 필요한 상담사의 한 페이지와 선택 사례만 조회합니다.
 
 고정 데이터 파일을 다시 만들 때만 아래 명령을 실행합니다.
 
@@ -215,7 +277,18 @@ Windows에 Python 본체가 없고 `py` 실행기만 남아 있는 상태입니�
 
 ## Docker 실행
 
-`.env`를 만든 후:
+Docker 이미지도 Git에 없는 상담 SQLite를 자동 생성하지 않습니다. 프로젝트 루트에서 `.env`를 만들고 `backend/data/counseling_demo_v3.sqlite3`을 먼저 생성한 후 실행합니다.
+
+```powershell
+if (-not (Test-Path -LiteralPath ".env")) {
+    Copy-Item -LiteralPath ".env.example" -Destination ".env"
+}
+if (-not (Test-Path -LiteralPath ".\backend\data\counseling_demo_v3.sqlite3")) {
+    & ".\.venv\Scripts\python.exe" ".\backend\scripts\build_counseling_dataset.py" --anchor-date 2026-08-10
+}
+```
+
+준비가 끝나면:
 
 ```powershell
 docker compose up --build
