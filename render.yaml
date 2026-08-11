@@ -1,0 +1,32 @@
+services:
+  - type: web
+    name: family-counseling-5zo-api
+    runtime: docker
+    plan: free
+    dockerfilePath: ./deploy/render/backend.Dockerfile
+    dockerContext: .
+    healthCheckPath: /health
+    envVars:
+      - key: APP_ENV
+        value: demo
+      - key: CORS_ORIGINS
+        value: https://family-counseling-5zo.onrender.com
+      - key: AUTH_SECRET
+        generateValue: true
+      - key: AI_PROVIDER
+        value: mock
+      - key: AVATAR_PROVIDER
+        value: static_2d
+      - key: STT_PROVIDER
+        value: browser
+
+  - type: web
+    name: family-counseling-5zo
+    runtime: docker
+    plan: free
+    dockerfilePath: ./frontend/Dockerfile
+    dockerContext: ./frontend
+    healthCheckPath: /
+    envVars:
+      - key: NEXT_PUBLIC_API_BASE_URL
+        value: https://family-counseling-5zo-api.onrender.com/api/v1
