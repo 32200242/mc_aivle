@@ -1,5 +1,9 @@
 # 가족센터 AI 상담 통합 플랫폼 — 실행 가능한 세로 슬라이스
 
+## 가장 간단한 외부 화면 시연
+
+Docker Desktop을 켠 뒤 저장소 루트의 `start-public-demo.cmd`를 더블클릭하면 API, 화면, 무료 Cloudflare Quick Tunnel이 함께 실행됩니다. 표시되는 `https://...trycloudflare.com` 주소를 다른 사람에게 공유하면 됩니다. 계정과 카드가 필요 없지만 PC와 실행 창을 켜 두어야 하고, 다시 실행할 때마다 주소가 변경됩니다. 자세한 내용은 [`deploy/quick-tunnel/README.md`](./deploy/quick-tunnel/README.md)를 참고하세요.
+
 제공된 화면 시안을 하나의 제품 구조로 연결한 프로토타입입니다. 공통 로그인, 역할별 메뉴, 중앙 관리자 대시보드, 상담사 내담자 관리·Mi:dm 코파일럿, 그리고 가상 내담자 상담사 교육 실습 화면이 포함됩니다.
 
 ## 현재 동작하는 범위
