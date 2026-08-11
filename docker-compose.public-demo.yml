@@ -10,6 +10,14 @@ services:
       AVATAR_PROVIDER: static_2d
       STT_PROVIDER: browser
       CORS_ORIGINS: http://127.0.0.1:3000
+    command: >-
+      sh -c "python /opt/public-demo/prepare_public_demo_db.py &&
+      uvicorn app.main:app --host 0.0.0.0 --port 10000"
+    volumes:
+      - type: bind
+        source: ./deploy/quick-tunnel/prepare_public_demo_db.py
+        target: /opt/public-demo/prepare_public_demo_db.py
+        read_only: true
     healthcheck:
       test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://127.0.0.1:10000/health')"]
       interval: 5s
@@ -44,4 +52,3 @@ services:
     depends_on:
       frontend:
         condition: service_healthy
-

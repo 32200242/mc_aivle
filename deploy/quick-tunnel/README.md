@@ -18,6 +18,7 @@ https://random-words.trycloudflare.com
 ## 시연 범위와 제한
 
 - 합성 데이터와 mock AI만 사용하며 `.env`의 실제 비밀값을 컨테이너에 전달하지 않는다.
+- 공개 컨테이너 안에서 별도의 합성 DB를 생성하고 `client-00013`을 황재훈 준비 사례로 지정한다. 로컬 DB 파일은 읽거나 컨테이너에 연결하거나 Git에 업로드하지 않는다.
 - 로컬 PC와 Docker Desktop이 켜져 있는 동안에만 접속할 수 있다.
 - Cloudflare Quick Tunnel은 테스트·시연용이며 고정 주소와 가동 시간 보장이 없다.
 - Quick Tunnel은 SSE를 공식 지원하지 않으므로 실시간 AI 응답 스트리밍은 지연되거나 동작하지 않을 수 있다. 로그인, 대시보드, 내담자 조회 등 일반 화면 시연을 권장한다.
