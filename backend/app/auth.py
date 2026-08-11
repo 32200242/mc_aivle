@@ -5,25 +5,18 @@ import hashlib
 import hmac
 import json
 import time
+from functools import lru_cache
 from typing import Annotated, Callable
 
 from fastapi import Depends, Header, HTTPException, status
 
 from .config import settings
 from .schemas import Role, UserView
+from .services.linked_data import PRIMARY_COUNSELOR_ID
+from .services.operational_data import get_counselor_directory
 
 
-DEMO_USERS = {
-    "counselor": {
-        "password": "demo",
-        "user": UserView(
-            id="user-counselor-01",
-            name="김지현 상담사",
-            role="counselor",
-            center_id="center-seoul-01",
-            center_name="서울 강남구 가족센터",
-        ),
-    },
+STATIC_USERS = {
     "admin": {
         "password": "demo",
         "user": UserView(
@@ -33,17 +26,25 @@ DEMO_USERS = {
             center_name="한국건강가정진흥원",
         ),
     },
-    "trainer": {
-        "password": "demo",
-        "user": UserView(
-            id="user-trainer-01",
-            name="이수민 교육담당자",
-            role="trainer",
-            center_id="center-seoul-01",
-            center_name="서울 강남구 가족센터",
-        ),
-    },
 }
+
+
+@lru_cache(maxsize=1)
+def _counselor_directory() -> dict[str, UserView]:
+    return {
+        str(item["id"]): UserView(
+            id=str(item["id"]),
+            name=f"{item['display_name']} 상담사",
+            role="counselor",
+            center_id=str(item["center_id"]),
+            center_name=str(item["center_name"]),
+        )
+        for item in get_counselor_directory()
+    }
+
+
+def _find_counselor(counselor_id: str) -> UserView | None:
+    return _counselor_directory().get(counselor_id.strip().upper())
 
 
 def _b64encode(payload: bytes) -> str:
@@ -83,18 +84,22 @@ def decode_token(token: str) -> dict:
 
 
 def find_user_by_id(user_id: str) -> UserView | None:
-    for item in DEMO_USERS.values():
+    for item in STATIC_USERS.values():
         user = item["user"]
         if user.id == user_id:
             return user
-    return None
+    return _find_counselor(user_id)
 
 
 def authenticate(username: str, password: str) -> UserView | None:
-    item = DEMO_USERS.get(username)
-    if not item or not hmac.compare_digest(str(item["password"]), password):
+    normalized = username.strip()
+    item = STATIC_USERS.get(normalized.lower())
+    if item:
+        return item["user"] if hmac.compare_digest(str(item["password"]), password) else None
+    counselor_id = PRIMARY_COUNSELOR_ID if normalized.lower() == "counselor" else normalized
+    if not hmac.compare_digest("demo", password):
         return None
-    return item["user"]
+    return _find_counselor(counselor_id)
 
 
 def current_user(authorization: Annotated[str | None, Header()] = None) -> UserView:
@@ -121,5 +126,5 @@ def require_roles(*roles: Role) -> Callable[[UserView], UserView]:
     return dependency
 
 
-AdminUser = Annotated[UserView, Depends(require_roles("central_admin", "center_admin"))]
-TrainingUser = Annotated[UserView, Depends(require_roles("counselor", "trainer", "center_admin", "central_admin"))]
+AdminUser = Annotated[UserView, Depends(require_roles("central_admin"))]
+CounselorUser = Annotated[UserView, Depends(require_roles("counselor"))]

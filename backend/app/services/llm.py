@@ -16,6 +16,12 @@ class LLMConfigurationError(RuntimeError):
     pass
 
 
+def _clamp_max_tokens(max_tokens: int) -> int:
+    """Keep every provider request within the configured server contract."""
+    server_limit = max(1, int(getattr(settings, "llm_max_output_tokens", 1600)))
+    return max(1, min(int(max_tokens), server_limit))
+
+
 def _authorization_headers() -> dict[str, str]:
     headers = {"Accept": "application/json"}
     if settings.internal_llm_api_key:
@@ -208,6 +214,7 @@ def _local_midm_sync(messages: list[dict[str, str]], max_tokens: int, temperatur
 async def chat_completion(
     messages: list[dict[str, str]], max_tokens: int = 900, temperature: float = 0.45
 ) -> str:
+    max_tokens = _clamp_max_tokens(max_tokens)
     if settings.ai_provider == "internal_openai":
         return await asyncio.to_thread(_openai_chat_sync, messages, max_tokens, temperature)
     if settings.ai_provider == "midm_local":

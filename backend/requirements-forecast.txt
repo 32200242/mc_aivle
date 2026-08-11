@@ -1,0 +1,2 @@
+# Optional production forecasting engine. The built-in fallback needs no extra package.
+xgboost>=3.0,<4

@@ -4,7 +4,7 @@ import asyncio
 
 from fastapi import APIRouter, Header, HTTPException, Request
 
-from ..auth import TrainingUser
+from ..auth import CounselorUser
 from ..schemas import SpeechStatus, SpeechTranscript
 from ..services.stt import speech_status, transcribe_internal
 
@@ -13,14 +13,14 @@ router = APIRouter(prefix="/speech", tags=["speech"])
 
 
 @router.get("/status", response_model=SpeechStatus)
-def get_speech_status(user: TrainingUser) -> SpeechStatus:
+def get_speech_status(user: CounselorUser) -> SpeechStatus:
     return SpeechStatus.model_validate(speech_status())
 
 
 @router.post("/transcribe", response_model=SpeechTranscript)
 async def transcribe(
     request: Request,
-    user: TrainingUser,
+    user: CounselorUser,
     x_filename: str = Header(default="speech.webm"),
 ) -> SpeechTranscript:
     content = await request.body()
@@ -32,4 +32,4 @@ async def transcribe(
         )
     except Exception as exc:
         raise HTTPException(status_code=503, detail=str(exc)) from exc
-    return SpeechTranscript(text=text, provider="internal_http")
+    return SpeechTranscript(text=text, provider=speech_status()["provider"])

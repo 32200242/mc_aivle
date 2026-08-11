@@ -11,6 +11,8 @@
     "emotion_intensity": { "type": "number", "minimum": 0, "maximum": 1 },
     "nonverbal_cues": {
       "type": "array",
+      "maxItems": 0,
+      "description": "2D 표정·입모양 전용 화면에서는 하위 호환을 위해 항상 빈 배열을 반환합니다.",
       "items": {
         "type": "object",
         "required": ["id", "label", "category", "intensity"],

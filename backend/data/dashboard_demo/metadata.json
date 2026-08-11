@@ -1,0 +1,53 @@
+{
+  "dataset_kind": "deterministic demonstration data",
+  "contains_real_people": false,
+  "as_of": "2026-08-03",
+  "seed": 20260803,
+  "history_days": 760,
+  "annual_counseling_contact_anchor": 307035,
+  "target_counselors": 1724,
+  "target_full_time_counselors": 403,
+  "selected_forecast_model": "검증가중 앙상블(Ridge+Boost+계절)",
+  "validation_days": 84,
+  "forecast_engine": "native_gradient_boosting",
+  "cv_folds": 3,
+  "ensemble_weights": {
+    "요일 계절 나이브": 0.65,
+    "최근 4주 동일요일 평균": 0.25,
+    "Ridge(추세·계절·시차)": 0.0,
+    "내장 Gradient Boosting(비선형·시차)": 0.1
+  },
+  "prediction_interval": "rolling-origin 절대오차 90백분위",
+  "queue_planning": {
+    "method": "Erlang-C(M/M/c) 운영계획 근사",
+    "forecast_daily_demand": 774.3,
+    "daily_slot_capacity": 1383.2,
+    "forecast_utilization_rate": 56.0,
+    "delay_probability": 0.0,
+    "expected_queue_sessions": 0.0,
+    "expected_wait_days": 0.0,
+    "recommended_additional_daily_slots": 0,
+    "pressure_level": "안정",
+    "assumption": "일별 수요의 포아송 도착·상담 슬롯의 독립 처리·대기 이탈 없음 가정; 실제 예약제 운영에서는 참고값"
+  },
+  "row_counts": {
+    "regions.csv": 17,
+    "centers.csv": 244,
+    "counselors.csv": 1724,
+    "client_cohorts.csv": 5781,
+    "daily_center_metrics.csv.gz": 185440,
+    "model_leaderboard.csv": 5
+  },
+  "relationships": {
+    "regions_to_centers": "regions.id = centers.region_id",
+    "centers_to_counselors": "centers.id = counselors.center_id",
+    "counselors_to_client_cohorts": "counselors.id = client_cohorts.counselor_id",
+    "centers_to_daily_metrics": "centers.id = daily_center_metrics.center_id"
+  },
+  "limitations": [
+    "운영 화면과 집계 로직 검증용이며 실제 기관 실적이 아닙니다.",
+    "개인별 임상 위험 또는 상담 성과를 예측하지 않습니다.",
+    "실서비스 전 기관·지역 코드와 실적 정의를 운영 데이터 표준에 맞춰 재매핑해야 합니다.",
+    "Erlang-C 대기값은 포아송 도착·독립 처리·대기 이탈 없음 가정의 운영계획 근사입니다."
+  ]
+}

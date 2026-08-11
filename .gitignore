@@ -1,8 +1,55 @@
+# Secrets and machine-local configuration
 .env
+.env.*
+**/.env
+**/.env.*
+!.env.example
+!**/.env.example
+*.pem
+*.key
+*.p12
+*.pfx
+*credentials*.json
+*service-account*.json
+
+# Local environments and dependency caches
 .venv/
+.venv*/
+**/.venv*/
+.pnpm-store/
+.diagnostics/
 __pycache__/
 *.pyc
 frontend/node_modules/
 frontend/.next/
+frontend/.npm-cache/
 frontend/out/
 *.log
+
+# Test, build, and tool output
+.pytest*/
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+.coverage
+*.tsbuildinfo
+tmp/
+outputs/
+
+# Runtime databases are local and may contain sensitive records
+*.db
+*.db-*
+*.sqlite
+*.sqlite-*
+*.sqlite3
+*.sqlite3-*
+backend/data/training_progress.json
+
+# Keep verification scripts, but not generated captures or archives
+verification/**/*.png
+verification/**/*.jpg
+verification/**/*.jpeg
+verification/**/*.webp
+verification/**/*.mp4
+verification/**/*.zip
+verification/all-tabs-*/

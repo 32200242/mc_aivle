@@ -1,4 +1,4 @@
-# Colab 믿:음 Base 시연 절차
+# Colab 믿:음 Base + PaddleOCR-VL 시연 절차
 
 ## 준비물
 
@@ -14,11 +14,13 @@ Hugging Face 모델은 공개되어 있어 `HF_TOKEN`이 없어도 받을 수 �
 ```text
 최초 설치: Windows에서 백엔드/프론트 의존성 설치(한 번만)
 시연 시작: Colab 모델 서버 준비
-연결 설정: Colab이 출력한 6개 값을 Windows .env에 복사
+연결 설정: Colab이 출력한 믿:음·OCR 값을 Windows .env에 복사
 로컬 실행: PowerShell 1 백엔드 → PowerShell 2 프론트엔드
 ```
 
 Colab은 믿:음 모델을 실행하는 곳이고, PowerShell은 로컬 웹서비스를 실행하는 곳입니다. Colab 셀에 PowerShell 명령을 넣거나 PowerShell에 Colab Python 코드를 넣지 않습니다.
+
+PaddleOCR-VL 1.6은 Transformers 5 전용 가상환경·별도 프로세스에서 실행되므로 Transformers 4.x를 사용하는 믿:음 환경을 덮어쓰지 않습니다. 두 프로세스는 같은 GPU를 공유하되 공용 잠금으로 한 번에 하나만 추론합니다.
 
 ## A. Colab에서 모델 서버 열기
 
@@ -32,8 +34,8 @@ Colab은 믿:음 모델을 실행하는 곳이고, PowerShell은 로컬 웹서�
 5. 필요할 때만 `HF_TOKEN`을 같은 방법으로 추가합니다.
 6. 새 런타임이면 1번 셀부터 순서대로 실행합니다.
 7. 모델 로드 완료 후 로컬 API 테스트 응답을 확인합니다.
-8. ngrok 셀 출력의 `.env` 여섯 줄을 복사합니다.
-9. 마지막 외부 주소 테스트가 `외부 연결 정상`을 출력하는지 확인합니다.
+8. PaddleOCR-VL 격리 사이드카와 OCR 프록시 셀까지 실행합니다.
+9. 마지막 셀의 `.env` 값을 복사하고 `외부 PaddleOCR 상태 정상`을 확인합니다.
 
 T4에서 첫 설치·다운로드·로드는 보통 가장 오래 걸립니다. 한 번 로드된 뒤의 첫 생성도 CUDA 초기화 때문에 느리고, 두 번째부터 상대적으로 빨라집니다.
 
@@ -70,6 +72,12 @@ INTERNAL_LLM_MODEL=K-intelligence/Midm-2.0-Base-Instruct
 INTERNAL_LLM_API_KEY=실제키
 LLM_REQUEST_TIMEOUT=240
 LLM_HEALTH_TIMEOUT=12
+OCR_PROVIDER=paddleocr_vl_http
+INTERNAL_OCR_URL=https://실제주소.ngrok-free.app/v1/ocr
+INTERNAL_OCR_API_KEY=실제키
+OCR_REQUEST_TIMEOUT=300
+OCR_HEALTH_TIMEOUT=12
+OCR_REMOTE_BATCH_SIZE=4
 ```
 
 백엔드용 PowerShell 1에서 `Ctrl+C`로 기존 프로세스를 종료한 뒤, 프로젝트 루트에서 실행합니다. Python 가상환경을 활성화할 필요는 없습니다.
@@ -92,10 +100,10 @@ npm.cmd run dev
 
 브라우저를 새로고침하고 다음 중 하나로 확인합니다.
 
-- 교육 화면: `http://127.0.0.1:3000/training`
+- 교육 영상: `http://127.0.0.1:3000/training` — Colab 없이도 재생
 - 상담 코파일럿: 로그인 후 왼쪽 `상담 코파일럿`
 
-상단에 `믿:음 연결 정상`과 지연시간이 보이면 연결이 끝난 것입니다.
+상담 코파일럿에서 `믿:음 연결 정상`을 확인하고 기록 영역에서 `PaddleOCR-VL 1.6 준비됨`이 보이면 연결이 끝난 것입니다.
 
 ## C. 시연 당일 권장 순서
 
@@ -105,13 +113,17 @@ npm.cmd run dev
 4. 새 ngrok URL과 API 키를 Windows `.env`에 반영
 5. PowerShell 1에서 로컬 백엔드 시작 또는 재시작
 6. PowerShell 2에서 `npm.cmd run dev`로 프론트엔드 실행
-7. 교육 화면 새로고침 후 `믿:음 연결 정상` 확인
-8. 짧은 질문으로 1회 워밍업
+7. 교육 영상 재생 확인
+8. 상담 코파일럿에서 믿:음 질문 1회, OCR 합성 문서 1장으로 각각 워밍업
 9. 본 시연 시작
 
 Colab은 런타임이 종료되거나 재연결될 수 있습니다. 시연 20~30분 전에 켜고, 노트북 탭을 열어 둔 상태에서 사용하세요. 인위적인 keep-alive 코드는 넣지 않았습니다.
 
 ## 오류별 해결
+
+### `python -m venv ... returned non-zero exit status 1`
+
+Colab Python 3.12 이미지에 `ensurepip/python3-venv`가 빠져 발생하는 환경 오류입니다. 수정된 OCR 셀은 표준 `venv` 대신 `virtualenv`를 설치해 사용하고, 실패하면서 만들어진 `/content/paddleocr_vl_env`만 다시 생성합니다. 런타임 재시작이나 Mi:dm 재로딩 없이 수정된 9번 OCR 셀부터 다시 실행하면 됩니다.
 
 ### 화면에 계속 `데모 응답`이 보임
 

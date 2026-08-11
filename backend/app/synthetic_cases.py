@@ -1,6 +1,9 @@
 from __future__ import annotations
 
+from datetime import date
+
 from .schemas import AssessmentScore, ClientCase, ClientSummary, CounselingSessionRecord
+from .services.service_clock import project_iso_date, project_upcoming_iso_datetime
 
 
 def _assessment(code: str, label: str, score: float, maximum: float, severity: str, interpretation: str) -> AssessmentScore:
@@ -56,8 +59,8 @@ CLIENT_CASES = [
         occupation="사무직",
         status="4회기 진행 중",
         session_count=4,
-        primary_issue="의사소통 단절 및 오해",
-        next_session_at="2026-08-05T10:00:00+09:00",
+        primary_issue="부부 의사소통 단절 및 오해",
+        next_session_at="2026-08-11T10:00:00+09:00",
         intake_date="2026-06-20",
         counseling_period="2026.06.20 ~ 진행 중",
         referral_source="가족센터 홈페이지 자가 신청",
@@ -68,8 +71,8 @@ CLIENT_CASES = [
         protective_factors=["상담 참여 의지가 높음", "자녀 돌봄에 대한 공동 책임감", "갈등이 없을 때 협력 경험이 있음"],
         risk_notes=["자해·타해 및 신체폭력 보고 없음", "고성이 오간 경험은 있어 매 회기 안전 여부를 직접 확인"],
         assessments=[
-            _assessment("FRPS", "가족관계 위기징후", 18, 45, "관심", "회피와 의사소통 단절 문항이 상대적으로 높음"),
-            _assessment("FSTRESS", "가족 스트레스", 22, 30, "높음", "양육·가사 분담과 시간 부족 스트레스가 두드러짐"),
+            _assessment("FRPS", "가족관계 문제징후", 47, 90, "확인 기준 미만", "18문항 원점수 합계이며 확인 기준은 54점 이상임"),
+            _assessment("FSTRESS", "가족스트레스", 12, 225, "생활사건 4건 경험", "생활사건 4/45건, 경험 사건의 스트레스 합계 12/225점"),
             _assessment("BFI10", "정서적 안정성", 6, 10, "보통", "긴장 상황에서 걱정이 증가하나 일상 기능은 유지됨"),
             _assessment("DIVORCE", "관계 해체 고려", 1, 3, "낮음", "일시적으로 별거를 생각했으나 구체적인 계획은 없다고 응답"),
         ],
@@ -91,7 +94,7 @@ CLIENT_CASES = [
         status="3회기 진행 중",
         session_count=3,
         primary_issue="부부 역할 및 가치관 차이",
-        next_session_at="2026-08-05T11:30:00+09:00",
+        next_session_at="2026-08-11T13:00:00+09:00",
         intake_date="2026-07-02",
         counseling_period="2026.07.02 ~ 진행 중",
         referral_source="지역 가족센터 전화 접수",
@@ -102,8 +105,8 @@ CLIENT_CASES = [
         protective_factors=["자녀 관련 의사결정에서는 협력 경험이 있음", "경제 정보를 공유할 의사가 있음", "두 사람 모두 관계 유지 의사 표현"],
         risk_notes=["신체적 위협 보고 없음", "경제 통제 여부는 구체 사례를 통해 추가 확인 필요"],
         assessments=[
-            _assessment("FRPS", "가족관계 위기징후", 21, 45, "관심", "강압·비꼼 및 대화 회피 영역 확인 필요"),
-            _assessment("FSTRESS", "가족 스트레스", 24, 30, "높음", "경제·일-가정 양립 스트레스가 높음"),
+            _assessment("FRPS", "가족관계 문제징후", 52, 90, "확인 기준 미만", "18문항 원점수 합계이며 확인 기준은 54점 이상임"),
+            _assessment("FSTRESS", "가족스트레스", 14, 225, "생활사건 5건 경험", "생활사건 5/45건, 경험 사건의 스트레스 합계 14/225점"),
             _assessment("BFI10", "개방성", 7, 10, "보통 이상", "대안 탐색에는 개방적이나 핵심 가치 충돌 시 입장이 경직됨"),
             _assessment("DIVORCE", "관계 해체 고려", 2, 3, "중간", "최근 6개월 내 별거를 언급한 적이 있어 의도와 계획을 직접 확인"),
         ],
@@ -111,6 +114,7 @@ CLIENT_CASES = [
             _session("FC-SYN-2026-002", 1, "2026-07-02", ["이수현"], "역할 갈등과 안전·통제 이슈 사정", "수입이 일정하지 않다는 이유로 자신의 의견이 가볍게 취급된다고 보고함.", "목소리는 차분했으나 경제 문제를 말할 때 팔짱을 끼고 표정이 굳어짐.", ["역할 기대 탐색", "경제적 의사결정 과정 확인", "위기 선별"], "역할 문제를 기여도의 우열이 아니라 합의되지 않은 기대의 충돌로 정리하는 데 동의함.", "첫 회기", "각자가 담당한다고 생각하는 역할 목록 작성", "배우자 동반 회기에서 기대 차이를 비교"),
             _session("FC-SYN-2026-002", 2, "2026-07-09", ["이수현", "배우자"], "역할 기대 불일치 가시화", "배우자는 생계 책임, 내담자는 가정 운영과 정서적 돌봄의 부담을 각각 강조함.", "서로의 목록을 들을 때 한숨과 말 끊기가 있었으나 재진술 과제에는 참여함.", ["역할 카드 분류", "상대 관점 재진술", "공통 목표 확인"], "자녀 일정 관리가 보이지 않는 노동이었다는 점을 배우자가 일부 인정함.", "역할 목록을 작성해 왔으나 중요도 평가는 달랐음.", "일주일간 가사·돌봄 시간 기록", "시간 자료를 바탕으로 현실적인 재배분 협상"),
             _session("FC-SYN-2026-002", 3, "2026-07-23", ["이수현", "배우자"], "공동 의사결정 규칙 합의", "예상 밖 지출을 두고 다툼이 있었지만 계좌 내역을 함께 확인한 뒤 대화를 재개했다고 보고함.", "초반 시선 회피가 있었으나 숫자와 일정표를 함께 볼 때 협력적 태도가 증가함.", ["의사결정 프로토콜", "구체적 요청", "합의 검토"], "일정 금액 이상 지출은 사전 공유하고 주 1회 20분 운영회의를 하기로 합의함.", "가사 기록을 통해 체감 부담의 차이를 확인함.", "2주간 운영회의 실시", "합의 이행과 경제 통제 우려 재평가"),
+            _session("FC-SYN-2026-002", 4, "2026-08-19", ["이수현", "배우자"], "합의 이행 점검과 재협상", "예정 회기에서 확인", "예정 회기에서 직접 관찰", [], "예정 회기에서 확인", "이전 회기 확정 기록을 바탕으로 확인", "운영회의 실행 결과 준비", "합의 유지와 조정 필요 항목 확인"),
         ],
         current_session_number=3,
     ),
@@ -123,26 +127,28 @@ CLIENT_CASES = [
         occupation="보건직",
         status="2회기 진행 중",
         session_count=2,
-        primary_issue="양육 방식 충돌과 자녀 위축 우려",
-        next_session_at="2026-08-06T14:00:00+09:00",
+        primary_issue="양육 방식 차이로 인한 부부갈등",
+        next_session_at="2026-08-12T14:00:00+09:00",
         intake_date="2026-07-18",
         counseling_period="2026.07.18 ~ 진행 중",
         referral_source="학교 상담교사 정보 제공 후 자가 신청",
         family_composition="배우자(37세, 공무원), 자녀 1명(초등학교 2학년)과 동거",
-        relationship_context="자녀의 학습 습관과 규칙 위반에 대한 대응이 다르다. 내담자는 설명과 기다림을, 배우자는 즉각적이고 일관된 제재를 선호함.",
-        presenting_problem="양육 문제만 나오면 배우자가 자신을 무책임한 부모로 평가한다고 느끼며, 자녀가 부모의 다툼을 눈치 보고 위축되는 것을 걱정함.",
+        relationship_context="자녀의 학습 습관과 규칙 위반에 대한 대응이 달라 부부가 서로의 양육 태도를 비판하는 일이 반복됨. 내담자는 설명과 기다림을, 배우자는 즉각적이고 일관된 제재를 선호함.",
+        presenting_problem="양육 문제를 상의하면 배우자가 자신을 무책임한 부모로 평가한다고 느끼며 부부의 책임 공방으로 번진다. 자녀 앞 갈등 노출을 줄이고 공동 양육 원칙을 세우고 싶다고 보고함.",
         counseling_goals=["자녀 앞에서 양육 논쟁 중단하기", "부부 공통 규칙 3개 합의하기", "자녀 행동과 부모 감정을 구분하여 반응하기"],
         protective_factors=["자녀의 안정이라는 공통 목표", "가족 활동을 정기적으로 유지", "양육 정보를 함께 찾아본 경험"],
         risk_notes=["자녀 신체 체벌 보고 없음", "자녀 앞 고성 빈도와 정서적 영향 지속 확인"],
         assessments=[
-            _assessment("FRPS", "가족관계 위기징후", 15, 45, "보통", "갈등 빈도보다 양육 주제의 집중도가 높음"),
-            _assessment("FSTRESS", "가족 스트레스", 20, 30, "높음", "양육 및 교대근무 피로가 주요 요인"),
+            _assessment("FRPS", "가족관계 문제징후", 42, 90, "확인 기준 미만", "18문항 원점수 합계이며 확인 기준은 54점 이상임"),
+            _assessment("FSTRESS", "가족스트레스", 10, 225, "생활사건 4건 경험", "생활사건 4/45건, 경험 사건의 스트레스 합계 10/225점"),
             _assessment("BFI10", "친화성", 8, 10, "높음", "갈등 회피로 요구 표현이 늦어질 수 있음"),
             _assessment("DIVORCE", "관계 해체 고려", 0, 3, "낮음", "관계 해체 생각은 없다고 응답"),
         ],
         sessions=[
             _session("FC-SYN-2026-003", 1, "2026-07-18", ["한지은"], "양육 갈등 장면과 자녀 영향 파악", "숙제 미완료 상황에서 부부가 서로의 양육 태도를 비난했고 자녀가 방으로 들어갔다고 보고함.", "자녀 반응을 설명할 때 눈물이 고였고 자신의 의견을 말할 때 문장 끝을 흐리는 모습이 관찰됨.", ["양육 갈등 장면 분석", "자녀 노출 최소화 계획", "부모 공동 목표 확인"], "자녀 앞 논쟁을 멈추고 나중에 이야기하는 신호가 필요하다고 동의함.", "첫 회기", "양육 갈등 발생 시간·상황 기록", "배우자와 공통 규칙 및 중단 신호 합의"),
             _session("FC-SYN-2026-003", 2, "2026-07-29", ["한지은", "배우자"], "공통 양육 원칙과 중단 신호 만들기", "숙제와 취침 문제를 둘러싼 기준이 서로 달랐음을 확인함.", "배우자는 초반 빠른 말투를 보였으나 자녀가 다툼을 피한다는 설명 후 침묵하며 들음.", ["공통 양육 가치 탐색", "규칙 구체화", "부부 논쟁 중단 신호 리허설"], "취침·화면시간·숙제 확인의 세 규칙을 2주간 동일하게 적용하기로 함.", "논쟁을 한 차례 다른 방에서 이어가 자녀 노출을 줄임.", "세 규칙 실행표 작성", "자녀 반응과 부모의 일관성 점검"),
+            _session("FC-SYN-2026-003", 3, "2026-08-12", ["한지은", "배우자"], "공통 규칙 실행과 자녀 반응 점검", "예정 회기에서 확인", "예정 회기에서 직접 관찰", [], "예정 회기에서 확인", "이전 회기 확정 기록을 바탕으로 확인", "세 규칙 실행표 준비", "규칙의 일관성과 갈등 중단 신호 점검"),
+            _session("FC-SYN-2026-003", 4, "2026-08-26", ["한지은", "배우자"], "양육 협력 유지계획 수립", "예정 회기에서 확인", "예정 회기에서 직접 관찰", [], "예정 회기에서 확인", "이전 회기 확정 기록을 바탕으로 확인", "실행 결과 준비", "유지 가능한 양육 협력 절차 합의"),
         ],
         current_session_number=2,
     ),
@@ -155,25 +161,28 @@ CLIENT_CASES = [
         occupation="프리랜서",
         status="초기 상담",
         session_count=1,
-        primary_issue="가족 돌봄 부담과 정서적 소진",
-        next_session_at="2026-08-08T15:00:00+09:00",
+        primary_issue="돌봄 역할 불균형으로 인한 부부갈등",
+        next_session_at="2026-08-13T15:00:00+09:00",
         intake_date="2026-07-30",
         counseling_period="2026.07.30 ~ 진행 중",
         referral_source="지역 복지관 연계",
         family_composition="배우자(40세), 자녀 2명과 동거. 인근에 거주하는 모친의 병원 동행을 주로 담당",
         relationship_context="자녀 돌봄과 원가족 돌봄을 함께 맡으며 휴식 시간이 부족하다. 배우자는 경제활동 부담을 이유로 돌봄 분담 논의를 피하는 경향이 있음.",
-        presenting_problem="가족이 자신을 필요로 하지만 정작 자신의 어려움은 아무도 묻지 않는다고 느낀다. 최근 짜증과 무기력, 수면 부족이 증가했다고 보고함.",
+        presenting_problem="배우자에게 돌봄 분담을 요청하면 서로의 경제·가사 기여를 비교하는 부부갈등으로 이어진다고 느낀다. 역할 재조정과 정서적 지지를 함께 다루고 싶다고 보고함.",
         counseling_goals=["돌봄 부담을 가시화하고 지원 요청하기", "주 2회 최소 휴식 시간 확보", "소진과 우울 위험을 지속 확인하기"],
         protective_factors=["복지관과 연결되어 있음", "친구 1명에게 도움을 요청할 수 있음", "상담 및 가족회의 의사 있음"],
         risk_notes=["자해 사고는 부인함", "수면·식사·일상 기능 저하가 지속되면 정신건강 전문 평가 연계 검토"],
         assessments=[
-            _assessment("FRPS", "가족관계 위기징후", 17, 45, "관심", "정서적 공유 부족과 역할 불균형 확인 필요"),
-            _assessment("FSTRESS", "가족 스트레스", 27, 30, "매우 높음", "돌봄·건강·경제 스트레스가 중첩됨"),
+            _assessment("FRPS", "가족관계 문제징후", 49, 90, "확인 기준 미만", "18문항 원점수 합계이며 확인 기준은 54점 이상임"),
+            _assessment("FSTRESS", "가족스트레스", 18, 225, "생활사건 6건 경험", "생활사건 6/45건, 경험 사건의 스트레스 합계 18/225점"),
             _assessment("BFI10", "정서적 안정성", 4, 10, "낮음", "현재 스트레스 상황의 영향 가능성이 있어 상태 요인과 구분 필요"),
             _assessment("DIVORCE", "관계 해체 고려", 1, 3, "낮음", "관계를 끝내기보다 혼자 쉬고 싶다는 표현으로 확인됨"),
         ],
         sessions=[
             _session("FC-SYN-2026-004", 1, "2026-07-30", ["오지아"], "돌봄 부담·기능 저하·위기 여부 초기 사정", "최근 한 달간 평균 수면이 5시간 미만이고 사소한 일에도 화가 난 뒤 죄책감을 느낀다고 보고함.", "몸을 앞으로 숙이고 한숨을 자주 쉬었으며 도움을 요청하는 이야기에 긴 침묵이 나타남.", ["부담 영역 지도화", "위기 및 기능 사정", "즉시 활용 가능한 지원자 탐색"], "자신의 피로를 개인적 무능이 아니라 누적된 돌봄 부담으로 보는 관점에 안도감을 표현함.", "첫 회기", "일주일 돌봄 시간표와 도움 요청 가능한 항목 표시", "배우자 또는 가족 참여 가능성 확인 및 지역 돌봄 자원 검토"),
+            _session("FC-SYN-2026-004", 2, "2026-08-13", ["오지아"], "돌봄 분담과 지원 요청 구체화", "예정 회기에서 확인", "예정 회기에서 직접 관찰", [], "예정 회기에서 확인", "1회기 확정 기록을 바탕으로 확인", "돌봄 시간표 준비", "지원 요청 실행 가능성과 기능 변화 확인"),
+            _session("FC-SYN-2026-004", 3, "2026-08-27", ["오지아", "배우자"], "가족 돌봄 역할 협상", "예정 회기에서 확인", "예정 회기에서 직접 관찰", [], "예정 회기에서 확인", "이전 회기 확정 기록을 바탕으로 확인", "분담 후보 준비", "구체적 역할과 휴식 시간 합의"),
+            _session("FC-SYN-2026-004", 4, "2026-09-10", ["오지아"], "소진 회복과 유지계획 점검", "예정 회기에서 확인", "예정 회기에서 직접 관찰", [], "예정 회기에서 확인", "이전 회기 확정 기록을 바탕으로 확인", "실행 결과 준비", "기능 변화와 추가 연계 필요성 평가"),
         ],
         current_session_number=1,
     ),
@@ -181,7 +190,40 @@ CLIENT_CASES = [
 
 
 def get_client_case(client_id: str) -> ClientCase | None:
-    return next((item for item in CLIENT_CASES if item.id == client_id), None)
+    # The materialized questionnaire database is the primary source. Keeping
+    # the four authored records as a fallback lets lightweight tests and local
+    # development start even before the data build script has been run.
+    try:
+        from .services.client_repository import get_client_case as get_stored_client_case
+
+        stored = get_stored_client_case(client_id)
+        if stored:
+            return stored
+    except (FileNotFoundError, OSError):
+        pass
+    fallback = next((item for item in CLIENT_CASES if item.id == client_id), None)
+    return _project_fallback_schedule(fallback) if fallback else None
+
+
+def _project_fallback_schedule(case: ClientCase) -> ClientCase:
+    anchor = date(2026, 8, 10)
+    projected_intake = project_iso_date(case.intake_date, anchor)
+    projected_next_session = project_upcoming_iso_datetime(case.next_session_at, anchor)
+    counseling_period = (
+        f"{projected_next_session[:10].replace('-', '.')} 시작 예정"
+        if case.session_count == 0 and projected_next_session
+        else f"{projected_intake.replace('-', '.')} ~ 진행 중"
+    )
+    sessions = [
+        item.model_copy(update={"date": project_iso_date(item.date, anchor)})
+        for item in case.sessions
+    ]
+    return case.model_copy(update={
+        "next_session_at": projected_next_session,
+        "intake_date": projected_intake,
+        "counseling_period": counseling_period,
+        "sessions": sessions,
+    })
 
 
 def get_session(case: ClientCase, session_number: int | None = None) -> CounselingSessionRecord:
@@ -206,17 +248,37 @@ def client_summaries() -> list[ClientSummary]:
     ]
 
 
-def build_case_analysis_context(case: ClientCase, session: CounselingSessionRecord) -> str:
+def build_case_analysis_context(
+    case: ClientCase,
+    session: CounselingSessionRecord,
+    finalized_record_evidence: list[str] | None = None,
+) -> str:
     assessments = "\n".join(
         f"- {item.code} {item.label}: {item.score:g}/{item.max_score:g}, {item.severity}; {item.interpretation}"
         for item in case.assessments
+        if not item.code.startswith("BFI10")
     )
+    if session.number == 1:
+        return f"""[분석 범위]
+1회기 시작 전 사전문진 분석. 상담 대화, 상담사 관찰, 회기 기록, SOAP 및 사후 정보는 사용하지 않음.
+
+[사전문진]
+{assessments}
+
+[해석 원칙]
+점수는 자기보고 선별자료이며 진단 또는 관찰 결과가 아님. 모든 관계패턴과 개입 관점은 첫 면담에서 확인할 가설로만 제시함.
+""".strip()
     completed_sessions = [item for item in case.sessions if item.number < session.number]
-    prior_sessions = "\n".join(
-        f"- {item.number}회기({item.date}): 목표={item.goal}; 내담자 보고={item.client_report}; "
-        f"관찰={item.counselor_observation}; 반응={item.client_response}; 변화={item.change_since_last}"
-        for item in completed_sessions
-    ) or "- 완료된 이전 회기 없음. 1회기 준비 분석은 사전문진과 접수정보만 사용함."
+    if finalized_record_evidence is not None:
+        prior_sessions = "\n".join(f"- {item}" for item in finalized_record_evidence) or "- 확정된 이전 회기 기록 없음"
+        completed_count = len(finalized_record_evidence)
+    else:
+        prior_sessions = "\n".join(
+            f"- {item.number}회기({item.date}): 목표={item.goal}; 내담자 보고={item.client_report}; "
+            f"관찰={item.counselor_observation}; 반응={item.client_response}; 변화={item.change_since_last}"
+            for item in completed_sessions
+        ) or "- 완료된 이전 회기 없음. 1회기 준비 분석은 사전문진과 접수정보만 사용함."
+        completed_count = len(completed_sessions)
     return f"""[자료 성격]
 실제 인물과 무관한 합성 사례 데이터. 실제 상담기록과 유사한 구조로 만든 시연 자료임.
 
@@ -243,7 +305,7 @@ def build_case_analysis_context(case: ClientCase, session: CounselingSessionReco
 [사전 문진]
 {assessments}
 
-[완료된 이전 회기 기록: {len(completed_sessions)}건]
+[확정된 이전 회기 기록: {completed_count}건]
 {prior_sessions}
 
 [분석 기준]
