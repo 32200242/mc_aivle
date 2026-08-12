@@ -2,7 +2,7 @@ $ErrorActionPreference = "Stop"
 
 $projectRoot = (Resolve-Path (Join-Path $PSScriptRoot "..\..")).Path
 $composeFile = Join-Path $projectRoot "docker-compose.public-demo.yml"
-$urlFile = Join-Path $projectRoot ".public-demo-url.txt"
+$urlFile = Join-Path $projectRoot "PUBLIC-DEMO-URL.txt"
 $projectName = "family-counseling-public-demo"
 $composeArgs = @("compose", "-p", $projectName, "-f", $composeFile)
 
@@ -44,15 +44,22 @@ try {
     }
 
     Set-Content -LiteralPath $urlFile -Value $publicUrl -Encoding UTF8
+    Set-Clipboard -Value $publicUrl
     Write-Host ""
     Write-Host "PUBLIC DEMO URL" -ForegroundColor Green
     Write-Host $publicUrl -ForegroundColor Yellow
     Write-Host ""
     Write-Host "Share this URL while this window stays open." -ForegroundColor Green
     Write-Host "Closing the demo changes the URL next time." -ForegroundColor DarkYellow
+    Write-Host "The URL was copied to the clipboard and saved to PUBLIC-DEMO-URL.txt." -ForegroundColor Cyan
     Write-Host ""
 
     Start-Process $publicUrl
+    Add-Type -AssemblyName PresentationFramework
+    [System.Windows.MessageBox]::Show(
+        "Public demo URL (already copied):`n`n$publicUrl`n`nKeep Docker Desktop and this window open.",
+        "Family Counseling Public Demo"
+    ) | Out-Null
     Read-Host "Press ENTER to stop the public demo"
 }
 catch {

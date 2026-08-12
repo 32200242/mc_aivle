@@ -10,6 +10,8 @@ https://random-words.trycloudflare.com
 
 이 주소는 계정, 카드, 도메인 없이 다른 사람에게 공유할 수 있다. PowerShell 창에서 Enter를 누르면 시연이 종료되며, 다음 실행에서는 주소가 바뀐다. 창을 강제로 닫아 서비스가 남아 있으면 `stop-public-demo.cmd`를 실행한다.
 
+주소가 만들어지면 브라우저와 팝업이 자동으로 열리고 주소가 클립보드에 복사된다. 저장소 루트의 `PUBLIC-DEMO-URL.txt`에서도 주소를 확인할 수 있다. 이미 시연이 실행 중인데 주소를 다시 확인하려면 `show-public-demo-url.cmd`를 더블클릭한다.
+
 시연 로그인 계정은 다음과 같다.
 
 - 상담사: `counselor` / `demo`

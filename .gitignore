@@ -45,6 +45,7 @@ outputs/
 *.sqlite3-*
 backend/data/training_progress.json
 .public-demo-url.txt
+PUBLIC-DEMO-URL.txt
 
 # Keep verification scripts, but not generated captures or archives
 verification/**/*.png
