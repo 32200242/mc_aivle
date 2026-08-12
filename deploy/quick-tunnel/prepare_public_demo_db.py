@@ -20,7 +20,7 @@ def main() -> None:
             UPDATE clients
             SET name=?, age=?, gender=?, occupation=?, primary_issue=?, issue_category=?,
                 relationship_context=?, presenting_problem=?, counseling_goals=?,
-                protective_factors=?, risk_notes=?
+                protective_factors=?, risk_notes=?, next_session_at=?
             WHERE id=?
             """,
             (
@@ -38,6 +38,7 @@ def main() -> None:
                 ),
                 json.dumps(["상담 참여 의지가 있음", "갈등 후 대화를 다시 시도한 경험이 있음"], ensure_ascii=False),
                 json.dumps(["즉각적 위기 징후는 없으나 매 회기 안전 여부 직접 확인"], ensure_ascii=False),
+                "2000-01-01T09:00:00",
                 CLIENT_ID,
             ),
         ).rowcount
