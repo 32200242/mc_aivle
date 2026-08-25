@@ -19,6 +19,7 @@ export default function LoginPage() {
   const [loading, setLoading] = useState(false);
   const [recoveryDialog, setRecoveryDialog] = useState<"username" | "password" | null>(null);
   const [recoveryCenters, setRecoveryCenters] = useState<RecoveryCenter[]>([]);
+  const [selectedRegionName, setSelectedRegionName] = useState("");
   const [selectedCenterId, setSelectedCenterId] = useState("");
   const [recoveryCounselors, setRecoveryCounselors] = useState<RecoveryCounselor[]>([]);
   const [selectedCounselorId, setSelectedCounselorId] = useState("");
@@ -48,6 +49,8 @@ export default function LoginPage() {
 
   async function openUsernameRecovery() {
     setRecoveryError("");
+    setRecoveryCenters([]);
+    setSelectedRegionName("");
     setSelectedCenterId("");
     setRecoveryCounselors([]);
     setSelectedCounselorId("");
@@ -65,6 +68,15 @@ export default function LoginPage() {
     }
   }
 
+  function selectRecoveryRegion(regionName: string) {
+    setSelectedRegionName(regionName);
+    setSelectedCenterId("");
+    setRecoveryCounselors([]);
+    setSelectedCounselorId("");
+    setRecoveredCounselor(null);
+    setRecoveryError("");
+  }
+
   async function selectRecoveryCenter(centerId: string) {
     setSelectedCenterId(centerId);
     setRecoveryCounselors([]);
@@ -76,7 +88,7 @@ export default function LoginPage() {
     try {
       const counselors = await getRecoveryCounselors(centerId);
       setRecoveryCounselors(counselors);
-      if (!counselors.length) setRecoveryError("이 센터에 등록된 시연용 상담사 계정이 없습니다.");
+      if (!counselors.length) setRecoveryError("이 센터에 등록된 상담사 계정이 없습니다.");
     } catch (reason) {
       setRecoveryError(reason instanceof Error ? reason.message : "상담사 목록을 불러오지 못했습니다.");
     } finally {
@@ -91,6 +103,11 @@ export default function LoginPage() {
     if (!counselor) setRecoveryError("상담사를 선택해 주세요.");
   }
 
+  const recoveryRegions = Array.from(new Set(recoveryCenters.map((center) => center.region_name)))
+    .sort((left, right) => left.localeCompare(right, "ko"));
+  const filteredRecoveryCenters = recoveryCenters
+    .filter((center) => center.region_name === selectedRegionName)
+    .sort((left, right) => left.center_name.localeCompare(right.center_name, "ko"));
   const selectedRecoveryCenter = recoveryCenters.find((center) => center.center_id === selectedCenterId);
 
   return (
@@ -132,38 +149,71 @@ export default function LoginPage() {
             {recoveryDialog === "username" ? (
               <>
                 <h2 id="recovery-dialog-title">아이디 찾기</h2>
-                <p className="recovery-description">소속 센터와 상담사를 차례로 선택하면 시연용 아이디를 확인할 수 있습니다.</p>
+                <p className="recovery-description">소속 지역, 센터, 상담사를 차례로 선택해 아이디를 확인합니다.</p>
                 <form className="recovery-form" onSubmit={submitUsernameRecovery}>
-                  <label htmlFor="recovery-center">센터명</label>
-                  <select
-                    id="recovery-center"
-                    autoFocus
-                    value={selectedCenterId}
-                    onChange={(event) => void selectRecoveryCenter(event.target.value)}
-                    disabled={recoveryLoading && !selectedCenterId}
-                    required
-                  >
-                    <option value="">{recoveryLoading && !recoveryCenters.length ? "센터 목록 불러오는 중…" : "센터를 선택하세요"}</option>
-                    {recoveryCenters.map((center) => <option key={center.center_id} value={center.center_id}>[{center.region_name}] {center.center_name}</option>)}
-                  </select>
-                  <label htmlFor="recovery-counselor">상담사 이름</label>
-                  <select
-                    id="recovery-counselor"
-                    value={selectedCounselorId}
-                    onChange={(event) => {
-                      setSelectedCounselorId(event.target.value);
-                      setRecoveredCounselor(null);
-                      setRecoveryError("");
-                    }}
-                    disabled={!selectedCenterId || recoveryLoading}
-                    required
-                  >
-                    <option value="">{recoveryLoading && selectedCenterId ? "상담사 목록 불러오는 중…" : "상담사를 선택하세요"}</option>
-                    {recoveryCounselors.map((counselor) => <option key={counselor.counselor_id} value={counselor.counselor_id}>{counselor.counselor_name}</option>)}
-                  </select>
-                  <p className="recovery-hint">상담사 이름을 몰라도 센터를 먼저 선택하면 등록된 시연용 이름이 표시됩니다.</p>
-                  {recoveryError && <p className="form-error" role="alert">{recoveryError}</p>}
-                  <button type="submit" className="primary wide" disabled={recoveryLoading || !selectedCounselorId}>{recoveryLoading ? "불러오는 중…" : "아이디 확인"}</button>
+                  <div className="recovery-steps">
+                    <div className={`recovery-step${selectedRegionName ? " is-complete" : ""}`}>
+                      <span className="recovery-step-number" aria-hidden="true">1</span>
+                      <div className="recovery-step-field">
+                        <label htmlFor="recovery-region">지역</label>
+                        <select
+                          id="recovery-region"
+                          autoFocus
+                          value={selectedRegionName}
+                          onChange={(event) => selectRecoveryRegion(event.target.value)}
+                          disabled={recoveryLoading}
+                          required
+                        >
+                          <option value="">{recoveryLoading && !recoveryCenters.length ? "지역 목록 불러오는 중…" : "지역을 선택하세요"}</option>
+                          {recoveryRegions.map((regionName) => <option key={regionName} value={regionName}>{regionName}</option>)}
+                        </select>
+                      </div>
+                    </div>
+                    <div className={`recovery-step${selectedCenterId ? " is-complete" : ""}${!selectedRegionName ? " is-disabled" : ""}`}>
+                      <span className="recovery-step-number" aria-hidden="true">2</span>
+                      <div className="recovery-step-field">
+                        <label htmlFor="recovery-center">센터</label>
+                        <select
+                          id="recovery-center"
+                          value={selectedCenterId}
+                          onChange={(event) => void selectRecoveryCenter(event.target.value)}
+                          disabled={!selectedRegionName || recoveryLoading}
+                          required
+                        >
+                          <option value="">{selectedRegionName ? "센터를 선택하세요" : "지역을 먼저 선택하세요"}</option>
+                          {filteredRecoveryCenters.map((center) => <option key={center.center_id} value={center.center_id}>{center.center_name}</option>)}
+                        </select>
+                      </div>
+                    </div>
+                    <div className={`recovery-step${selectedCounselorId ? " is-complete" : ""}${!selectedCenterId ? " is-disabled" : ""}`}>
+                      <span className="recovery-step-number" aria-hidden="true">3</span>
+                      <div className="recovery-step-field">
+                        <label htmlFor="recovery-counselor">상담사</label>
+                        <select
+                          id="recovery-counselor"
+                          value={selectedCounselorId}
+                          onChange={(event) => {
+                            setSelectedCounselorId(event.target.value);
+                            setRecoveredCounselor(null);
+                            setRecoveryError("");
+                          }}
+                          disabled={!selectedCenterId || recoveryLoading}
+                          required
+                        >
+                          <option value="">{recoveryLoading && selectedCenterId ? "상담사 목록 불러오는 중…" : selectedCenterId ? "상담사를 선택하세요" : "센터를 먼저 선택하세요"}</option>
+                          {recoveryCounselors.map((counselor) => <option key={counselor.counselor_id} value={counselor.counselor_id}>{counselor.counselor_name}</option>)}
+                        </select>
+                      </div>
+                    </div>
+                    <div className={`recovery-step recovery-step-action${recoveredCounselor ? " is-complete" : ""}${!selectedCounselorId ? " is-disabled" : ""}`}>
+                      <span className="recovery-step-number" aria-hidden="true">4</span>
+                      <div className="recovery-step-field">
+                        <span className="recovery-step-label">아이디 확인</span>
+                        {recoveryError && <p className="form-error" role="alert">{recoveryError}</p>}
+                        <button type="submit" className="primary wide" disabled={recoveryLoading || !selectedCounselorId}>{recoveryLoading ? "불러오는 중…" : "아이디 확인"}</button>
+                      </div>
+                    </div>
+                  </div>
                 </form>
                 {recoveredCounselor && (
                   <div className="recovery-results" aria-live="polite">
@@ -180,7 +230,7 @@ export default function LoginPage() {
                 <h2 id="recovery-dialog-title">비밀번호 찾기</h2>
                 <div className="demo-password-notice">
                   <span aria-hidden="true">✓</span>
-                  <p>현재 사이트는 공개 시연용입니다.<br />모든 시연 계정의 비밀번호는 <code>demo</code>입니다.</p>
+                  <p>로그인 비밀번호는 <code>demo</code>입니다.</p>
                 </div>
                 <button type="button" className="primary wide" onClick={() => setRecoveryDialog(null)} autoFocus>확인</button>
               </>

@@ -66,7 +66,7 @@ def test_recovery_counselors_rejects_unknown_or_malformed_center() -> None:
     )
 
     assert missing.status_code == 404
-    assert missing.json()["detail"] == "해당 시연용 센터를 찾을 수 없습니다."
+    assert missing.json()["detail"] == "해당 센터를 찾을 수 없습니다."
     assert malformed.status_code == 422
 
 

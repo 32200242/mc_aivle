@@ -38,7 +38,7 @@ def recovery_counselors(
 ) -> RecoveryCounselorList:
     center = get_recovery_center(center_id)
     if center is None:
-        raise HTTPException(status_code=404, detail="해당 시연용 센터를 찾을 수 없습니다.")
+        raise HTTPException(status_code=404, detail="해당 센터를 찾을 수 없습니다.")
     return RecoveryCounselorList(**center)
 
 
