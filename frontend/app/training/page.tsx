@@ -41,7 +41,10 @@ type SpeechRecognitionLike = {
 type SpeechRecognitionConstructor = new () => SpeechRecognitionLike;
 
 
-const FIRST_QUESTION = "요즘 가장 힘들게 느껴지는 순간은 언제인가요?";
+const FIRST_QUESTIONS: Record<PersonaId, string> = {
+  "lee-jieun": "요즘 가장 힘들게 느껴지는 순간은 언제인가요?",
+  "kim-minseok": "요즘 아내분과의 대화는 어떠세요?",
+};
 const FIRST_RESPONSE_VIDEOS: Record<PersonaId, string> = {
   "lee-jieun": "/training/lee-jieun-counselor-training-final.mp4?v=20260817-voxcpm2",
   "kim-minseok": "/training/kim-minseok-counselor-training-angry.mp4?v=20260826",
@@ -68,9 +71,9 @@ const emotionLabel: Record<TurnResult["emotion"], string> = {
 };
 
 
-function isFirstQuestion(text: string) {
+function isFirstQuestion(text: string, personaId: PersonaId) {
   const normalize = (value: string) => value.replace(/\s+/g, "").replace(/[?？.!。]+$/, "");
-  return normalize(text) === normalize(FIRST_QUESTION);
+  return normalize(text) === normalize(FIRST_QUESTIONS[personaId]);
 }
 
 
@@ -128,7 +131,7 @@ export default function TrainingPage() {
   const [selectedPersonaId, setSelectedPersonaId] = useState<PersonaId>("lee-jieun");
   const [autoPlayAudio, setAutoPlayAudio] = useState(true);
   const [sessionLoading, setSessionLoading] = useState(true);
-  const [message, setMessage] = useState(FIRST_QUESTION);
+  const [message, setMessage] = useState(FIRST_QUESTIONS["lee-jieun"]);
   const [response, setResponse] = useState("상담사의 질문을 입력하면 가상 내담자의 응답이 여기에 표시됩니다.");
   const [emotion, setEmotion] = useState<TurnResult["emotion"]>("neutral");
   const [emotionIntensity, setEmotionIntensity] = useState(.55);
@@ -187,7 +190,10 @@ export default function TrainingPage() {
       return;
     }
     setSttError("");
-    speechBaseRef.current = message.trim();
+    const activePersonaId = session?.persona_id ?? selectedPersonaId;
+    const currentMessage = message.trim();
+    const isUnchangedDefaultQuestion = message === FIRST_QUESTIONS[activePersonaId];
+    speechBaseRef.current = isUnchangedDefaultQuestion ? "" : currentMessage;
     const recognition = new Recognition();
     recognition.lang = "ko-KR";
     recognition.continuous = true;
@@ -212,6 +218,7 @@ export default function TrainingPage() {
     recognition.onend = () => setListening(false);
     recognitionRef.current = recognition;
     recognition.start();
+    if (isUnchangedDefaultQuestion) setMessage("");
     setListening(true);
   }
 
@@ -291,7 +298,7 @@ export default function TrainingPage() {
     setSessionLoading(true);
     setError("");
     setSttError("");
-    setMessage(FIRST_QUESTION);
+    setMessage(FIRST_QUESTIONS[personaId]);
     setResponse("상담사의 질문을 입력하면 가상 내담자의 응답이 여기에 표시됩니다.");
     setEmotion("neutral");
     setEmotionIntensity(.55);
@@ -330,7 +337,7 @@ export default function TrainingPage() {
     event.preventDefault();
     const text = message.trim();
     if (!session || !text || busy || sessionLoading) return;
-    const fixedFirstTurn = history.length === 0 && isFirstQuestion(text);
+    const fixedFirstTurn = history.length === 0 && isFirstQuestion(text, session.persona_id);
     fixedFirstVideoRef.current = fixedFirstTurn;
     needsVideoSpeechFallbackRef.current = false;
     pendingSpeechRef.current = null;

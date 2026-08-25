@@ -128,7 +128,7 @@ async def stream_turn(session_id: str, request: TurnRequest, user: CounselorUser
         yield _sse("turn.started", {"session_id": session_id})
         history = store.get_turns(session_id)
         mark_started(session)
-        cache_key = demo_asset_key(session) if is_demo_first_question(request.counselor_message, history) else None
+        cache_key = demo_asset_key(session) if is_demo_first_question(request.counselor_message, history, session) else None
         try:
             result = await generate_turn(
                 request.counselor_message,

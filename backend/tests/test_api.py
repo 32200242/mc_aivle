@@ -283,6 +283,17 @@ def test_demo_first_question_is_fixed_and_prewarmable() -> None:
     assert '"주의할응답": ["배우자의 의도나 잘잘못을 성급히 단정하지 않습니다."]' in response_text
 
 
+def test_demo_first_questions_are_persona_specific() -> None:
+    female_session = {"persona_id": "lee-jieun"}
+    male_session = {"persona_id": "kim-minseok"}
+
+    assert ai.is_demo_first_question(ai.DEFAULT_DEMO_QUESTIONS["lee-jieun"], [], female_session)
+    assert not ai.is_demo_first_question(ai.DEFAULT_DEMO_QUESTIONS["kim-minseok"], [], female_session)
+    assert ai.is_demo_first_question(ai.DEFAULT_DEMO_QUESTIONS["kim-minseok"], [], male_session)
+    assert not ai.is_demo_first_question(ai.DEFAULT_DEMO_QUESTIONS["lee-jieun"], [], male_session)
+    assert not ai.is_demo_first_question(ai.DEFAULT_DEMO_QUESTIONS["kim-minseok"], [{"role": "counselor"}], male_session)
+
+
 @pytest.mark.parametrize(
     ("feedback", "expected"),
     [
@@ -314,7 +325,7 @@ def test_male_demo_first_question_uses_restrained_anger() -> None:
     response = client.post(
         f"/api/v1/training/sessions/{session['id']}/turns/stream",
         headers=headers,
-        json={"counselor_message": ai.DEFAULT_DEMO_QUESTION},
+        json={"counselor_message": ai.DEFAULT_DEMO_QUESTIONS["kim-minseok"]},
     )
     assert response.status_code == 200
     response_text = response.content.decode("utf-8")

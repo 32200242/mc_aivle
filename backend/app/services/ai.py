@@ -50,6 +50,10 @@ DIFFICULTY = {
 
 EMOTIONS = {"neutral", "sad", "angry", "anxious", "hurt", "withdrawn"}
 DEFAULT_DEMO_QUESTION = "요즘 가장 힘들게 느껴지는 순간은 언제인가요?"
+DEFAULT_DEMO_QUESTIONS = {
+    "lee-jieun": DEFAULT_DEMO_QUESTION,
+    "kim-minseok": "요즘 아내분과의 대화는 어떠세요?",
+}
 DEMO_RESPONSE_VERSION = "v5"
 
 DEMO_FIRST_RESPONSES = {
@@ -179,9 +183,11 @@ def _with_utterance_scores(result: TurnResult, message: str) -> TurnResult:
     return result.model_copy(update={"supervisor_feedback": feedback, "tts_text": result.response})
 
 
-def is_demo_first_question(message: str, history: list[dict]) -> bool:
+def is_demo_first_question(message: str, history: list[dict], session: dict) -> bool:
     normalized = re.sub(r"\s+", "", message).rstrip("?？.!。")
-    expected = re.sub(r"\s+", "", DEFAULT_DEMO_QUESTION).rstrip("?？.!。")
+    persona_id = get_persona(session.get("persona_id"))["id"]
+    question = DEFAULT_DEMO_QUESTIONS.get(persona_id, DEFAULT_DEMO_QUESTION)
+    expected = re.sub(r"\s+", "", question).rstrip("?？.!。")
     return not history and normalized == expected
 
 
@@ -478,7 +484,7 @@ def _result_from_unstructured(raw: str) -> TurnResult:
 
 
 async def generate_turn(message: str, session: dict, history: list[dict]) -> TurnResult:
-    if is_demo_first_question(message, history):
+    if is_demo_first_question(message, history, session):
         # 시연 첫 장면은 문구·정서·음성을 고정해 매번 같은 품질과 타이밍을 보장한다.
         return _with_utterance_scores(demo_first_turn(session), message)
     if settings.ai_provider == "mock":
