@@ -5,8 +5,6 @@ import { useRouter } from "next/navigation";
 
 import { login } from "@/lib/api";
 
-const publicDemoMode = process.env.NEXT_PUBLIC_PUBLIC_DEMO === "true";
-
 export default function LoginPage() {
   const router = useRouter();
   const [username, setUsername] = useState("");
@@ -22,20 +20,6 @@ export default function LoginPage() {
     } catch (reason) {
       setError(reason instanceof Error ? reason.message : "로그인에 실패했습니다.");
     } finally { setLoading(false); }
-  }
-  async function enterDemo(account: "admin" | "counselor") {
-    setUsername(account);
-    setPassword("demo");
-    setLoading(true);
-    setError("");
-    try {
-      const user = await login(account, "demo");
-      router.push(user.role === "central_admin" ? "/admin/dashboard" : "/counselor");
-    } catch (reason) {
-      setError(reason instanceof Error ? reason.message : "시연 계정 로그인에 실패했습니다.");
-    } finally {
-      setLoading(false);
-    }
   }
   return (
     <main className="login-page">
@@ -57,24 +41,11 @@ export default function LoginPage() {
             {error && <p className="form-error">{error}</p>}
             <button type="submit" className="primary wide" disabled={loading}>{loading ? "확인 중…" : "LOGIN"}</button>
           </form>
-          {publicDemoMode && <section className="public-demo-login">
-            <div><b>공개 시연 모드</b><small>합성 데이터와 고정 응답으로 실제 화면 흐름을 확인합니다.</small></div>
-            <p>교육생 제안용 비공식 프로토타입이며 실제 기관 서비스가 아닙니다. 실제 개인정보는 입력하지 마세요.</p>
-            <ul className="public-demo-status">
-              <li><b>현재 실행</b><span>대시보드 · 합성 사례 · 결정론적 코파일럿 · 교육 영상</span></li>
-              <li><b>GPU 연결 시</b><span>생성형 AI · OCR · 음성 · 영상 확장</span></li>
-            </ul>
-            <div className="public-demo-buttons">
-              <button type="button" onClick={() => void enterDemo("counselor")} disabled={loading}>상담사 시연 시작</button>
-              <button type="button" onClick={() => void enterDemo("admin")} disabled={loading}>관리자 시연 시작</button>
-            </div>
-            <a className="public-demo-doc" href="/docs/DX_05조_기술명세서.md" target="_blank" rel="noreferrer">전체 기술명세서 보기 ↗</a>
-          </section>}
           <div className="login-recovery"><button type="button">아이디 찾기</button><button type="button">비밀번호 찾기</button></div>
           <div className="divider"><span>또는</span></div>
           <button type="button" className="certificate">▦ 공동인증서 로그인</button>
           <div className="security-note"><b>◇ 보안 안내</b><small>개인정보 보호를 위해 이용 후 반드시 로그아웃해 주세요.</small></div>
-          <small className="login-copyright">{publicDemoMode ? "교육생 제안용 비공식 프로토타입 · 기관 승인·운영 서비스 아님" : "© 한국건강가정진흥원. All Rights Reserved."}</small>
+          <small className="login-copyright">© 한국건강가정진흥원. All Rights Reserved.</small>
         </section>
       </div>
     </main>

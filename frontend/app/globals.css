@@ -1010,26 +1010,6 @@ h1, h2, h3, p { margin-top: 0; }
 .public-demo-flow a.active i { background:#4779ba; color:#fff; }
 .public-demo-flow a.public-demo-spec { border-style:dashed; color:#536b88; }
 
-.public-demo-login {
-  margin-top:14px; padding:12px 13px; border:1px solid #d9e7fb;
-  border-radius:10px; background:#f7faff;
-}
-.public-demo-login > div:first-child { display:flex; flex-direction:column; gap:3px; }
-.public-demo-login b { color:#315f98; font-size:13px; }
-.public-demo-login small { color:#6e7c8f; font-size:11px; line-height:1.4; }
-.public-demo-login p { margin:8px 0 0; color:#875666; font-size:10px; line-height:1.45; }
-.public-demo-status { display:grid; gap:4px; margin:9px 0 0; padding:0; list-style:none; }
-.public-demo-status li { display:flex; gap:7px; align-items:baseline; color:#647285; font-size:10px; }
-.public-demo-status li b { min-width:54px; color:#315f98; font-size:10px; }
-.public-demo-buttons { display:grid; grid-template-columns:1fr 1fr; gap:7px; margin-top:9px; }
-.public-demo-buttons button {
-  min-height:34px; border:1px solid #b7cce9; border-radius:8px; background:#fff;
-  color:#315f98; font-size:12px; font-weight:700; cursor:pointer;
-}
-.public-demo-buttons button:first-child { background:#315f98; border-color:#315f98; color:#fff; }
-.public-demo-buttons button:disabled { opacity:.55; cursor:wait; }
-.public-demo-doc { display:inline-block; margin-top:9px; color:#315f98; font-size:11px; font-weight:700; }
-
 @media (max-width: 900px) {
   .public-demo-flow { align-items:flex-start; flex-direction:column; }
 }
