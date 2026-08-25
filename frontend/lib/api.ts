@@ -45,6 +45,37 @@ export async function login(username: string, password: string): Promise<User> {
   return data.user as User;
 }
 
+export type RecoveryCenter = {
+  center_id: string;
+  center_name: string;
+  region_name: string;
+};
+
+export type RecoveryCounselor = {
+  counselor_id: string;
+  counselor_name: string;
+};
+
+export async function getRecoveryCenters(): Promise<RecoveryCenter[]> {
+  const response = await fetch(`${API_BASE}/auth/recovery/centers`);
+  if (!response.ok) {
+    const body = await response.json().catch(() => ({}));
+    throw new Error(apiErrorMessage(body, response.status, "센터 목록을 불러오지 못했습니다."));
+  }
+  const data = await response.json() as { centers?: RecoveryCenter[] };
+  return Array.isArray(data.centers) ? data.centers : [];
+}
+
+export async function getRecoveryCounselors(centerId: string): Promise<RecoveryCounselor[]> {
+  const response = await fetch(`${API_BASE}/auth/recovery/counselors?${new URLSearchParams({ center_id: centerId })}`);
+  if (!response.ok) {
+    const body = await response.json().catch(() => ({}));
+    throw new Error(apiErrorMessage(body, response.status, "상담사 목록을 불러오지 못했습니다."));
+  }
+  const data = await response.json() as { counselors?: RecoveryCounselor[] };
+  return Array.isArray(data.counselors) ? data.counselors : [];
+}
+
 export function logout(): void {
   localStorage.removeItem("family-center-token");
   localStorage.removeItem("family-center-user");

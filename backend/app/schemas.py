@@ -29,6 +29,30 @@ class LoginResponse(BaseModel):
     user: UserView
 
 
+class RecoveryCenter(BaseModel):
+    center_id: str
+    center_name: str
+    region_name: str
+
+
+class RecoveryCenterList(BaseModel):
+    centers: list[RecoveryCenter]
+    synthetic: bool = True
+
+
+class RecoveryCounselor(BaseModel):
+    counselor_id: str
+    counselor_name: str
+
+
+class RecoveryCounselorList(BaseModel):
+    center_id: str
+    center_name: str
+    region_name: str
+    counselors: list[RecoveryCounselor]
+    synthetic: bool = True
+
+
 class NonverbalCue(BaseModel):
     id: str
     label: str
