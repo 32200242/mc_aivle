@@ -50,7 +50,7 @@ DIFFICULTY = {
 
 EMOTIONS = {"neutral", "sad", "angry", "anxious", "hurt", "withdrawn"}
 DEFAULT_DEMO_QUESTION = "요즘 가장 힘들게 느껴지는 순간은 언제인가요?"
-DEMO_RESPONSE_VERSION = "v4"
+DEMO_RESPONSE_VERSION = "v5"
 
 DEMO_FIRST_RESPONSES = {
     "couple-conflict-01": {
@@ -58,9 +58,9 @@ DEMO_FIRST_RESPONSES = {
                    "사실 저는 싸우자는 게 아니고, 그냥 우리 사이가 좀 나아졌으면 해서 말을 꺼낸 건데.\n"
                    "하.. 그런데 얘기가 끝나고 나면, 제 마음은 하나도 전해지지 않은 것 같아요. "
                    "그게 너무 서운하고… 이제는 저도 좀 지쳐요"),
-        "male": ("아내와 이야기를 시작했는데 제 말을 또 변명으로 받아들일 때가 가장 힘들어요. "
-                 "저도 참고 차분히 설명해 보려는데 계속 몰아붙인다는 느낌이 들면 화가 나요. "
-                 "그러다 목소리가 커지고 나면 또 제 잘못만 남는 것 같아서 더 답답해요."),
+        "male": ("아니, 아내한테 설명을 할 수가 없어요. "
+                 "저도 참고 차분히 설명해 보려는데 계속 말은 안 듣고 핑계로만 들으니까, "
+                 "그러다 화를 내기라도 하면 또 제 잘못만 남는 것 같아서 그냥 너무 답답하고 짜증나요."),
         "emotion": "hurt",
         "intensity": 0.64,
         "emotion_male": "angry",

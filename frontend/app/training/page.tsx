@@ -42,7 +42,10 @@ type SpeechRecognitionConstructor = new () => SpeechRecognitionLike;
 
 
 const FIRST_QUESTION = "요즘 가장 힘들게 느껴지는 순간은 언제인가요?";
-const FIRST_RESPONSE_VIDEO = "/training/lee-jieun-counselor-training-final.mp4?v=20260817-voxcpm2";
+const FIRST_RESPONSE_VIDEOS: Record<PersonaId, string> = {
+  "lee-jieun": "/training/lee-jieun-counselor-training-final.mp4?v=20260817-voxcpm2",
+  "kim-minseok": "/training/kim-minseok-counselor-training-angry.mp4?v=20260826",
+};
 const PERSONAS: Record<PersonaId, {
   name: string;
   gender: string;
@@ -327,7 +330,7 @@ export default function TrainingPage() {
     event.preventDefault();
     const text = message.trim();
     if (!session || !text || busy || sessionLoading) return;
-    const fixedFirstTurn = history.length === 0 && session.persona_id === "lee-jieun" && isFirstQuestion(text);
+    const fixedFirstTurn = history.length === 0 && isFirstQuestion(text);
     fixedFirstVideoRef.current = fixedFirstTurn;
     needsVideoSpeechFallbackRef.current = false;
     pendingSpeechRef.current = null;
@@ -355,7 +358,7 @@ export default function TrainingPage() {
           setHistory(items => [...items, { role: "client", text: result.response }]);
           setTurnCount(count => count + 1);
           if (fixedFirstTurn) {
-            setAvatarVideoUrl(FIRST_RESPONSE_VIDEO);
+            setAvatarVideoUrl(FIRST_RESPONSE_VIDEOS[session.persona_id]);
             setAvatarVideoPlaybackKey(key => key + 1);
           }
         },
@@ -399,6 +402,9 @@ export default function TrainingPage() {
   const activePersona = PERSONAS[activePersonaId];
   const selectedPersona = PERSONAS[selectedPersonaId];
   const personaName = session?.persona_name ?? activePersona.name;
+  const activeEmotionLabel = activePersonaId === "kim-minseok" && emotion === "angry"
+    ? "화남"
+    : emotionLabel[emotion];
 
   return (
     <AppShell title="AI 상담사 교육" subtitle="가상 성인 내담자 페르소나 실습 · 사례 03. 결혼 7년차 부부 갈등">
@@ -437,7 +443,7 @@ export default function TrainingPage() {
               personaName={personaName}
               emotion={emotion}
               videoUrl={avatarVideoUrl}
-              preloadVideoUrl={FIRST_RESPONSE_VIDEO}
+              preloadVideoUrl={FIRST_RESPONSE_VIDEOS[activePersonaId]}
               playbackKey={avatarVideoPlaybackKey}
               rendering={avatarRendering}
               speaking={speaking}
@@ -447,7 +453,7 @@ export default function TrainingPage() {
               onVideoError={handleVideoError}
             />
             <div className="persona-overlay"><b>가상 내담자 페르소나</b><span>이름　　{personaName}</span><span>성별　　{activePersona.gender}</span><span>나이　　{activePersona.age}세</span><span>직업　　{activePersona.occupation}</span><span>결혼 기간　{activePersona.marriagePeriod}</span><span>자녀　　{activePersona.children}</span></div>
-            <div className="state-overlay"><span><small>감정 상태</small><b>{emotionLabel[emotion]} {Math.round(emotionIntensity * 100)}%</b></span><span><small>현재 표정</small><b>{avatarRendering ? "준비 중" : "표정 반영"}</b></span><span><small>입모양</small><b>{speaking ? "말하는 중" : "대기"}</b></span></div>
+            <div className="state-overlay"><span><small>감정 상태</small><b>{activeEmotionLabel} {Math.round(emotionIntensity * 100)}%</b></span><span><small>현재 표정</small><b>{avatarRendering ? "준비 중" : "표정 반영"}</b></span><span><small>입모양</small><b>{speaking ? "말하는 중" : "대기"}</b></span></div>
           </div>
           <form className="counselor-input" onSubmit={submit}>
             <label>상담사 발화</label><textarea value={message} onChange={event => setMessage(event.target.value)} placeholder="가상 내담자에게 질문하거나 마이크로 말해 보세요." disabled={busy || sessionLoading}/><button className={`stt-button ${listening ? "listening" : ""}`} type="button" onClick={toggleSTT} disabled={!sttSupported || busy || sessionLoading} aria-pressed={listening}>{listening ? "■ 듣기 중" : "🎙 음성 입력"}</button><button className="primary" disabled={!session || busy || sessionLoading}>{busy ? "응답 중…" : "전송"}</button>
@@ -460,7 +466,7 @@ export default function TrainingPage() {
           <h3>내담자 반응</h3><div className="response-box" aria-live="polite">{response}{busy && <span className="typing-caret">▍</span>}</div>
           <div className="tts-status"><span>{avatarRendering ? "표정·입모양 준비 중" : speaking ? "🔊 응답 재생 중" : autoPlayAudio ? "자동 음성 대기" : "자동 음성 꺼짐"}</span><small>응답 음성과 표정이 아바타 화면에서 함께 재생됩니다.</small><button type="button" onClick={replayResponse} disabled={!history.some(item => item.role === "client") || busy}>최근 응답 다시 듣기</button></div>
           {avatarNotice && <p className="training-pending">{avatarNotice}</p>}
-          <h3>페르소나 상태</h3><div className="avatar-info-grid"><div><span>표정</span><b>{emotionLabel[emotion]}</b></div><div><span>강도</span><b>{Math.round(emotionIntensity * 100)}%</b></div><div className="wide"><span>표현 상태</span><b>{avatarRendering ? "표정과 입모양을 준비하고 있습니다." : speaking ? "내담자 응답을 재생하고 있습니다." : "페르소나 표정이 준비되어 있습니다."}</b></div></div>
+          <h3>페르소나 상태</h3><div className="avatar-info-grid"><div><span>표정</span><b>{activeEmotionLabel}</b></div><div><span>강도</span><b>{Math.round(emotionIntensity * 100)}%</b></div><div className="wide"><span>표현 상태</span><b>{avatarRendering ? "표정과 입모양을 준비하고 있습니다." : speaking ? "내담자 응답을 재생하고 있습니다." : "페르소나 표정이 준비되어 있습니다."}</b></div></div>
           <h3>대화 기록</h3><div className="chat-history">{history.length ? history.slice(-6).map((item, index) => <div key={`${item.role}-${index}`} className={item.role}><b>{item.role === "counselor" ? "상담사" : "내담자"}</b><p>{item.text}</p></div>) : <p className="empty-chat">첫 질문을 전송하면 상담사와 내담자의 대화가 차례로 기록됩니다.</p>}</div>
           <h3>슈퍼바이저 피드백</h3><div className="feedback-box">{Object.keys(feedback).length ? normalizedFeedbackEntries(feedback).map(({ key, label, text }) => <div key={key}><b>{label}</b><p>{text}</p></div>) : <p>첫 질문을 전송하면 즉시 생성됩니다.</p>}</div>
         </aside>

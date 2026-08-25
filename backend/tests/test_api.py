@@ -318,7 +318,11 @@ def test_male_demo_first_question_uses_restrained_anger() -> None:
     )
     assert response.status_code == 200
     response_text = response.content.decode("utf-8")
-    assert "계속 몰아붙인다는 느낌이 들면 화가 나요" in response_text
+    assert (
+        "아니, 아내한테 설명을 할 수가 없어요. "
+        "저도 참고 차분히 설명해 보려는데 계속 말은 안 듣고 핑계로만 들으니까, "
+        "그러다 화를 내기라도 하면 또 제 잘못만 남는 것 같아서 그냥 너무 답답하고 짜증나요."
+    ) in response_text
     assert '"emotion": "angry"' in response_text
     assert '"emotion_intensity": 0.67' in response_text
 
