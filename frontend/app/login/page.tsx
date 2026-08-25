@@ -91,16 +91,6 @@ export default function LoginPage() {
     if (!counselor) setRecoveryError("상담사를 선택해 주세요.");
   }
 
-  function useRecoveredUsername(value: string) {
-    setUsername(value);
-    setRecoveryDialog(null);
-  }
-
-  function useDemoPassword() {
-    setPassword("demo");
-    setRecoveryDialog(null);
-  }
-
   const selectedRecoveryCenter = recoveryCenters.find((center) => center.center_id === selectedCenterId);
 
   return (
@@ -131,16 +121,12 @@ export default function LoginPage() {
         </section>
       </div>
       {recoveryDialog && (
-        <div
-          className="recovery-backdrop"
-          onMouseDown={() => setRecoveryDialog(null)}
-        >
+        <div className="recovery-backdrop">
           <section
             className="recovery-dialog"
             role="dialog"
             aria-modal="true"
             aria-labelledby="recovery-dialog-title"
-            onMouseDown={(event) => event.stopPropagation()}
           >
             <button type="button" className="recovery-close" onClick={() => setRecoveryDialog(null)} aria-label="닫기">×</button>
             {recoveryDialog === "username" ? (
@@ -182,12 +168,9 @@ export default function LoginPage() {
                 {recoveredCounselor && (
                   <div className="recovery-results" aria-live="polite">
                     <strong>아이디 찾기 결과</strong>
-                    <div>
-                      <button type="button" onClick={() => useRecoveredUsername(recoveredCounselor.counselor_id)}>
+                    <div className="recovery-result-card">
                         <span><b>{recoveredCounselor.counselor_name}</b><small>{selectedRecoveryCenter ? `[${selectedRecoveryCenter.region_name}] ${selectedRecoveryCenter.center_name}` : ""}</small></span>
                         <code>{recoveredCounselor.counselor_id}</code>
-                        <em>아이디 입력</em>
-                      </button>
                     </div>
                   </div>
                 )}
@@ -199,7 +182,7 @@ export default function LoginPage() {
                   <span aria-hidden="true">✓</span>
                   <p>현재 사이트는 공개 시연용입니다.<br />모든 시연 계정의 비밀번호는 <code>demo</code>입니다.</p>
                 </div>
-                <button type="button" className="primary wide" onClick={useDemoPassword} autoFocus>비밀번호 입력란에 적용</button>
+                <button type="button" className="primary wide" onClick={() => setRecoveryDialog(null)} autoFocus>확인</button>
               </>
             )}
           </section>

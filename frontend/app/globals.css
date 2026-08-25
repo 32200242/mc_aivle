@@ -533,14 +533,11 @@ h1, h2, h3, p { margin-top: 0; }
 .recovery-hint { margin:2px 0 8px; color:#858b96; font-size:11px; line-height:1.55; }
 .recovery-results { margin-top:22px; padding-top:18px; border-top:1px solid #eee4e7; }
 .recovery-results > strong { display:block; margin-bottom:10px; font-size:13px; }
-.recovery-results > div { display:flex; flex-direction:column; gap:8px; max-height:260px; overflow:auto; }
-.recovery-results button { display:grid; grid-template-columns:minmax(0,1fr) auto; gap:4px 14px; align-items:center; width:100%; padding:12px 13px; border:1px solid #eadde1; border-radius:10px; background:#fffafb; text-align:left; }
-.recovery-results button:hover,.recovery-results button:focus-visible { border-color:#dd8fa4; background:#fff1f4; outline:0; }
+.recovery-result-card { display:grid; grid-template-columns:minmax(0,1fr) auto; gap:4px 14px; align-items:center; width:100%; padding:12px 13px; border:1px solid #eadde1; border-radius:10px; background:#fffafb; }
 .recovery-results span { min-width:0; }
 .recovery-results b,.recovery-results small { display:block; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
 .recovery-results small { margin-top:3px; color:#858b96; font-size:10px; }
 .recovery-results code { color:#a92f53; font-weight:800; }
-.recovery-results em { grid-column:2; color:#bb3f62; font-size:10px; font-style:normal; }
 .demo-password-notice { display:flex; gap:13px; align-items:flex-start; margin:24px 0; padding:18px; border:1px solid #f0cdd6; border-radius:12px; background:#fff5f7; }
 .demo-password-notice > span { flex:0 0 auto; display:grid; place-items:center; width:28px; height:28px; border-radius:50%; background:#d65374; color:#fff; font-weight:900; }
 .demo-password-notice p { margin:1px 0 0; color:#5e5960; line-height:1.7; }
@@ -640,8 +637,7 @@ h1, h2, h3, p { margin-top: 0; }
   .login-card { min-height:650px; padding:65px 25px 30px; }
   .recovery-backdrop { padding:12px; }
   .recovery-dialog { max-height:calc(100vh - 24px); padding:26px 20px 22px; border-radius:14px; }
-  .recovery-results button { grid-template-columns:1fr; }
-  .recovery-results em { grid-column:1; }
+  .recovery-result-card { grid-template-columns:1fr; }
   .session-record-facts,.official-record-summary.session-record-notes { grid-template-columns:1fr; }
   .session-record-facts > div:nth-child(3),.official-record-summary.session-record-notes > div { grid-column:auto; }
 }
