@@ -133,15 +133,14 @@ export default function LoginPage() {
       {recoveryDialog && (
         <div
           className="recovery-backdrop"
-          onMouseDown={(event) => {
-            if (event.currentTarget === event.target) setRecoveryDialog(null);
-          }}
+          onMouseDown={() => setRecoveryDialog(null)}
         >
           <section
             className="recovery-dialog"
             role="dialog"
             aria-modal="true"
             aria-labelledby="recovery-dialog-title"
+            onMouseDown={(event) => event.stopPropagation()}
           >
             <button type="button" className="recovery-close" onClick={() => setRecoveryDialog(null)} aria-label="닫기">×</button>
             {recoveryDialog === "username" ? (
