@@ -132,7 +132,7 @@ export const HWANG_COPILOT_RESULT: CopilotResult = {
   xai_notice: "사전문진 점수와 1회기 확정기록에 직접 적힌 근거만 표시했습니다. 이론별 내용은 진단이나 자동 처방이 아니라 2회기에서 검증할 가설입니다.",
 };
 
-export function buildHwangRecords(serviceDate: string): IntegratedRecords {
+export function buildHwangRecords(serviceDate: string, counselorName: string): IntegratedRecords {
   return {
     provider: "prepared_case",
     model: "prepared_case",
@@ -140,7 +140,7 @@ export function buildHwangRecords(serviceDate: string): IntegratedRecords {
     fallback_reason: null,
     initial_intake: {},
     session_record: {
-      "상담자": "윤주연 상담사",
+      "상담자": counselorName,
       "내담자": "황재훈, 배우자",
       "상담일자": serviceDate,
       "상담시작시각": "09:00",

@@ -3,7 +3,7 @@
 import { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
 
-import { finalizeSessionRecord, generateIntegratedRecords, getOCRStatus, runOCR } from "@/lib/api";
+import { finalizeSessionRecord, generateIntegratedRecords, getOCRStatus, getStoredUser, runOCR } from "@/lib/api";
 import type { IntegratedRecords, OCRResult, OCRStatus } from "@/lib/types";
 import { Panel, Tag } from "@/components/UI";
 import GenogramDiagram from "@/components/GenogramDiagram";
@@ -100,7 +100,7 @@ export default function RecordsWorkspace({ activeStep, onStepChange, clientId, s
     if (files.length && ocrResult && !ocrReviewed) return setError("첨부한 SOAP 노트와 S/O/A/P 내용을 확인하고 필요한 부분을 수정한 뒤 ‘원본 확인 완료’를 선택하세요.");
     setRecordBusy(true); setError("");
     try {
-      const preparedRecords = buildHwangRecords(serviceDate);
+      const preparedRecords = buildHwangRecords(serviceDate, getStoredUser()?.name ?? "상담사");
       const created = preparedCase ? { ...preparedRecords, soap: includeSoap ? { ...soapDraft } : {} } : await generateIntegratedRecords({
         record_type: sessionNumber === 1 ? "initial_intake" : "session_record", include_soap: includeSoap,
         client_id: clientId, session_number: sessionNumber,

@@ -55,7 +55,7 @@ export default function CounselorHome() {
     setSelectedDateKey(todayKey);
   }
 
-  return <AppShell title="안녕하세요, 윤주연 상담사님" subtitle="오늘도 따뜻한 상담으로 내담자의 변화를 함께 만들어가요.">
+  return <AppShell title={(user) => `안녕하세요, ${user.name}님`} subtitle="오늘도 따뜻한 상담으로 내담자의 변화를 함께 만들어가요.">
     <div className="counselor-home-grid">
       <div>
         <div className="welcome-banner"><div><b>오늘의 상담 일정</b><strong>{loading || !today ? "-" : `${todayAppointments.length}건`}</strong><span>{loading || !today ? "일정을 불러오는 중입니다." : firstTodayAppointment ? `첫 상담은 ${formatAppointmentTime(firstTodayAppointment.date)} · ${firstTodayAppointment.client.name}` : "오늘 예정된 상담이 없습니다."}</span></div><div className="house-art" aria-hidden="true">◷</div></div>

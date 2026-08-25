@@ -7,7 +7,7 @@ import { useEffect, useState } from "react";
 import { getStoredUser, logout } from "@/lib/api";
 import type { User } from "@/lib/types";
 
-type Props = { children: React.ReactNode; title: string; subtitle?: string; referenceDate?: string };
+type Props = { children: React.ReactNode; title: string | ((user: User) => string); subtitle?: string; referenceDate?: string };
 
 const counselorMenu = [
   ["⌂", "메인", "/counselor"],
@@ -46,6 +46,7 @@ export default function AppShell({ children, title, subtitle, referenceDate }: P
   const isAdmin = user.role === "central_admin";
   const menu = isAdmin ? adminMenu : counselorMenu;
   const demoFlow = isAdmin ? adminDemoFlow : counselorDemoFlow;
+  const resolvedTitle = typeof title === "function" ? title(user) : title;
   const displayDate = formatDisplayDate(referenceDate ?? todayInSeoul());
   const signOut = () => { logout(); router.replace("/login"); };
   const isActive = (href: string) => {
@@ -79,7 +80,7 @@ export default function AppShell({ children, title, subtitle, referenceDate }: P
         <header className={`topbar ${isAdmin ? "admin-topbar" : "counselor-topbar"}`}>
           {isAdmin
             ? <div className="admin-context"><span className="menu-mark">☰</span><span className="center-switch">가족센터 →</span></div>
-            : <div><h1>{title}</h1>{subtitle && <p>{subtitle}</p>}</div>}
+            : <div><h1>{resolvedTitle}</h1>{subtitle && <p>{subtitle}</p>}</div>}
           <div className="top-actions">
             <span className="period-pill">{isAdmin ? `기준일　▦　${displayDate}` : `4회기 · ${displayDate}`}</span>
             <div className="user-chip"><span className="avatar-dot">{user.name.slice(0, 1)}</span><span><b>{user.name}</b><small>{user.center_name}</small></span></div>
@@ -96,7 +97,7 @@ export default function AppShell({ children, title, subtitle, referenceDate }: P
             })}<a className="public-demo-spec" href="/docs/DX_05조_기술명세서.md" target="_blank" rel="noreferrer">기술명세서 ↗</a></div>
             <small className="public-demo-warning">실제 기관 서비스가 아닙니다. 실제 개인정보를 입력하지 마세요.</small>
           </nav>}
-          {isAdmin && <div className="admin-page-heading"><h1>{title}</h1>{subtitle && <p>{subtitle}</p>}</div>}
+          {isAdmin && <div className="admin-page-heading"><h1>{resolvedTitle}</h1>{subtitle && <p>{subtitle}</p>}</div>}
           {children}
         </div>
       </main>
