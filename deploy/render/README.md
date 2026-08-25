@@ -5,7 +5,7 @@
 
 ## 생성되는 공개 서비스
 
-- 화면: `maum-family-center-demo`
+- 화면: `maum-family-center`
 - API: `maum-family-center-api`
 - 모드: `AI_PROVIDER=mock`, `AVATAR_PROVIDER=static_2d`
 - 상담 DB: 이미지 빌드 중 고정 시드로 생성되는 합성 SQLite

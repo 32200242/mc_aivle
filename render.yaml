@@ -10,7 +10,7 @@ services:
       - key: APP_ENV
         value: demo
       - key: CORS_ORIGINS
-        value: https://maum-family-center-demo.onrender.com
+        value: https://maum-family-center.onrender.com
       - key: AUTH_SECRET
         generateValue: true
       - key: AI_PROVIDER
@@ -21,7 +21,7 @@ services:
         value: browser
 
   - type: web
-    name: maum-family-center-demo
+    name: maum-family-center
     runtime: docker
     plan: free
     dockerfilePath: ./frontend/Dockerfile
