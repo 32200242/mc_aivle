@@ -1,0 +1,7 @@
+-r requirements.txt
+torch>=2.4
+transformers>=4.51,<6
+accelerate>=1,<2
+huggingface-hub>=0.30,<2
+# Linux/CUDA에서만 4bit 양자화를 설치합니다. Windows는 FP16/BF16 또는 별도 vLLM 서버를 권장합니다.
+bitsandbytes>=0.45; platform_system != "Windows"

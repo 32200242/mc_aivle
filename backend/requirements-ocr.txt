@@ -1,0 +1,4 @@
+-r requirements.txt
+opencv-python-headless>=4.10,<5
+Pillow>=10,<13
+PyMuPDF>=1.24,<2
