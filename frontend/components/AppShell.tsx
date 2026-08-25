@@ -24,7 +24,7 @@ const counselorDemoFlow = [
   ["1", "상담사 홈", "/counselor"],
   ["2", "황재훈 사례", "/counselor/clients/client-00013"],
   ["3", "상담 코파일럿", "/counselor/copilot?client=client-00013"],
-  ["4", "교육 시연", "/training"],
+  ["4", "교육 화면", "/training"],
 ];
 const adminDemoFlow = [
   ["1", "통합 현황", "/admin/dashboard"],
@@ -88,14 +88,14 @@ export default function AppShell({ children, title, subtitle, referenceDate }: P
           </div>
         </header>
         <div className="page-content">
-          {publicDemoMode && <nav className="public-demo-flow" aria-label="공개 시연 순서">
-            <span><b>시연 순서</b><small>비공식 제안용 · 합성 데이터</small></span>
+          {publicDemoMode && <nav className="public-demo-flow" aria-label="주요 화면 이용 순서">
+            <span><b>이용 순서</b><small>합성 데이터 기반</small></span>
             <div>{demoFlow.map(([step, label, href]) => {
               const demoPath = href.split("?")[0];
               const active = pathname === demoPath;
               return <Link key={href} href={href} className={active ? "active" : ""}><i>{step}</i>{label}</Link>;
             })}<a className="public-demo-spec" href="/docs/DX_05조_기술명세서.md" target="_blank" rel="noreferrer">기술명세서 ↗</a></div>
-            <small className="public-demo-warning">실제 기관 서비스가 아닙니다. 실제 개인정보를 입력하지 마세요.</small>
+            <small className="public-demo-warning">합성 데이터를 사용합니다. 실제 개인정보를 입력하지 마세요.</small>
           </nav>}
           {isAdmin && <div className="admin-page-heading"><h1>{resolvedTitle}</h1>{subtitle && <p>{subtitle}</p>}</div>}
           {children}
