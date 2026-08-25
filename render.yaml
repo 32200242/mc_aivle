@@ -1,6 +1,6 @@
 services:
   - type: web
-    name: family-center-ai-api
+    name: maum-family-center-api
     runtime: docker
     plan: free
     dockerfilePath: ./deploy/render/backend.Dockerfile
@@ -10,7 +10,7 @@ services:
       - key: APP_ENV
         value: demo
       - key: CORS_ORIGINS
-        value: https://family-center-ai-web.onrender.com
+        value: https://maum-family-center-demo.onrender.com
       - key: AUTH_SECRET
         generateValue: true
       - key: AI_PROVIDER
@@ -21,7 +21,7 @@ services:
         value: browser
 
   - type: web
-    name: family-center-ai-web
+    name: maum-family-center-demo
     runtime: docker
     plan: free
     dockerfilePath: ./frontend/Dockerfile
@@ -31,6 +31,6 @@ services:
       - key: HOSTNAME
         value: 0.0.0.0
       - key: NEXT_PUBLIC_API_BASE_URL
-        value: https://family-center-ai-api.onrender.com/api/v1
+        value: https://maum-family-center-api.onrender.com/api/v1
       - key: NEXT_PUBLIC_PUBLIC_DEMO
         value: "true"
